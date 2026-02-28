@@ -3,6 +3,7 @@ export enum AppState {
   Disclaimer,
   UserInfo,
   Uploading,
+  Hearing,
   Analyzing,
   Results,
   History,

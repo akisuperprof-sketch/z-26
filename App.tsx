@@ -3,6 +3,7 @@ import React, { useState, useCallback } from 'react';
 import DisclaimerScreen from './components/DisclaimerScreen';
 import UserInfoScreen from './components/UserInfoScreen';
 import UploadWizard from './components/UploadWizard';
+import HearingScreen from './components/HearingScreen';
 import AnalysisScreen from './components/AnalysisScreen';
 import ResultsScreen from './components/ResultsScreen';
 import HistoryScreen from './components/HistoryScreen';
@@ -106,19 +107,32 @@ const App: React.FC = () => {
 
   const handleStartAnalysis = useCallback(async (images: UploadedImage[]) => {
     setUploadedImages(images);
+    setAppState(AppState.Hearing);
+  }, []);
+
+  const handleHearingNext = useCallback(async (hearingAnswers: Record<string, number | null>) => {
     setAppState(AppState.Analyzing);
 
     try {
       setAnalysisError(null);
-      const files = images.map(img => img.file);
+      const files = uploadedImages.map(img => img.file);
       const currentMode = isDevEnabled() ? analysisMode : AnalysisMode.Standard;
 
+      // In the real integration we would send hearingAnswers to the analyzer.
+      // Currently routeTongueAnalysis only takes files and userInfo.
+      // E.g., const result = await routeTongueAnalysis(files, userInfo, currentMode, hearingAnswers);
       const result = await routeTongueAnalysis(files, userInfo, currentMode);
+
+      // Store hearing answers in the result state or user info for history if needed.
+      if (userInfo) {
+        userInfo.answers = { ...userInfo.answers, hearing: hearingAnswers };
+      }
+
       setAnalysisResult(result);
       setAppState(AppState.Results);
 
       if (userInfo) {
-        saveHistory(userInfo, result.findings, images).catch(err => console.error("History save failed:", err));
+        saveHistory(userInfo, result.findings, uploadedImages).catch(err => console.error("History save failed:", err));
         saveLastUserInfo(userInfo).catch(err => console.error("Last User Info save failed:", err));
       }
 
@@ -127,7 +141,7 @@ const App: React.FC = () => {
       const errorMessage = error instanceof Error ? error.message : "不明なエラー";
       setAnalysisError(errorMessage);
     }
-  }, [userInfo, analysisMode]);
+  }, [uploadedImages, userInfo, analysisMode]);
 
   const handleRestart = useCallback(() => {
     setAnalysisResult(null);
@@ -143,6 +157,8 @@ const App: React.FC = () => {
         return <UserInfoScreen onNext={handleUserInfoSubmit} />;
       case AppState.Uploading:
         return <UploadWizard onStartAnalysis={handleStartAnalysis} devMode={devMode} />;
+      case AppState.Hearing:
+        return <HearingScreen onNext={handleHearingNext} onBack={() => setAppState(AppState.Uploading)} />;
       case AppState.Analyzing:
         return (
           <AnalysisScreen
