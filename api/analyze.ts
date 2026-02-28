@@ -23,7 +23,7 @@ export default async function handler(req: any, res: any) {
         // This is a proxy pass-through to hide the key.
 
         const response = await ai.models.generateContent({
-            model: 'gemini-2.0-flash-exp',
+            model: 'gemini-2.0-flash',
             contents: [
                 {
                     role: "user",
