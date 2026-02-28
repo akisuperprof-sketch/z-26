@@ -19,11 +19,8 @@ export default async function handler(req: any, res: any) {
         const ai = new GoogleGenAI({ apiKey });
 
         // Call API
-        // Note: We trust the client to send properly formatted parts (text prompt + inline data)
-        // This is a proxy pass-through to hide the key.
-
-        const response = await ai.models.generateContent({
-            model: 'gemini-2.0-flash',
+        const result = await ai.models.generateContent({
+            model: 'gemini-1.5-flash',
             contents: [
                 {
                     role: "user",
@@ -32,11 +29,10 @@ export default async function handler(req: any, res: any) {
             ],
             config: {
                 responseMimeType: "application/json",
-                systemInstruction: systemInstruction // if needed
             }
         });
 
-        const text = response.text;
+        const text = result.text;
         return res.status(200).json({ text });
 
     } catch (error: any) {
