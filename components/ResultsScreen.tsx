@@ -203,6 +203,11 @@ const ResultsScreen: React.FC<ResultsScreenProps> = ({ result, onRestart, upload
 
 
       <div className="mt-8 text-center space-y-4">
+        {result.savedId && (
+          <div className="text-xs text-slate-400 mb-2">
+            履歴ID: {result.savedId}
+          </div>
+        )}
         {onOpenDictionary && (
           <button
             onClick={onOpenDictionary}

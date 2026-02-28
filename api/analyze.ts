@@ -1,4 +1,5 @@
 
+import crypto from 'crypto';
 import { GoogleGenAI } from "@google/genai";
 import { createClient } from "@supabase/supabase-js";
 
@@ -9,12 +10,32 @@ export default async function handler(req: any, res: any) {
         return res.status(405).json({ error: 'Method Not Allowed' });
     }
 
-    // 2. Security Guard (Internal Key)
-    const internalKey = process.env.INTERNAL_API_KEY;
-    const requestKey = req.headers['x-internal-key'];
-    if (!internalKey || requestKey !== internalKey) {
-        return res.status(401).json({ error: 'Unauthorized: Invalid Internal Key' });
+    // 2. Security Guard (Short-lived Token Check)
+    const authHeader = req.headers['authorization'];
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ error: 'Missing or Invalid Token' });
     }
+    const token = authHeader.split(' ')[1];
+    const internalKey = process.env.INTERNAL_API_KEY;
+    if (!internalKey) return res.status(500).json({ error: 'Server Config Error' });
+
+    try {
+        const decoded = Buffer.from(token, 'base64').toString('utf-8');
+        const [payload, signature] = decoded.split('|');
+        const [tokenIp, expiryStr] = payload.split(':');
+
+        const expectedSignature = crypto.createHmac('sha256', internalKey).update(payload).digest('hex');
+        if (signature !== expectedSignature) {
+            return res.status(401).json({ error: 'Invalid Token Signature' });
+        }
+
+        if (Date.now() > parseInt(expiryStr, 10)) {
+            return res.status(401).json({ error: 'Token Expired' });
+        }
+    } catch {
+        return res.status(401).json({ error: 'Invalid Token Format' });
+    }
+
 
     // 3. API Config Check
     const apiKey = process.env.GEMINI_API_KEY;

@@ -50,6 +50,7 @@ export interface DiagnosisResult {
   heatCold?: HeatColdResult;
   findings: FindingResult[];
   liteResult?: LiteResult; // Added for Lite Plan
+  savedId?: string;
 }
 
 export enum AnalysisMode {

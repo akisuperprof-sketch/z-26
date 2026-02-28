@@ -53,10 +53,29 @@ export const analyzeTongueHealth = async (files: File[], userInfo: UserInfo | nu
             `;
         }
 
-        const response = await fetch('/api/generate', {
+        // 1. Get Token
+        const tokenRes = await fetch('/api/token');
+        if (!tokenRes.ok) throw new Error("セキュリティトークンの取得に失敗しました。");
+        const { token } = await tokenRes.json();
+
+        // 2. Format Payload for /api/analyze
+        const parts = [
+            { text: prompt },
+            ...images.map(img => ({
+                inlineData: {
+                    data: img.data,
+                    mimeType: img.mimeType
+                }
+            }))
+        ];
+
+        const response = await fetch('/api/analyze', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ prompt, images }),
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ parts }),
             signal: controller.signal
         });
 
@@ -68,7 +87,8 @@ export const analyzeTongueHealth = async (files: File[], userInfo: UserInfo | nu
         }
 
         const data = await response.json();
-        const aiResponseText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        const aiResponseText = data.text;
+        const savedId = data.savedId;
 
         if (!aiResponseText) throw new Error("AIの応答が空でした。");
 
@@ -82,7 +102,7 @@ export const analyzeTongueHealth = async (files: File[], userInfo: UserInfo | nu
                 const finding = TONGUE_FINDINGS.find(f => f.key === raw.id);
                 return finding ? { ...finding, aiExplanation: raw.explanation } as FindingResult : null;
             }).filter((f): f is FindingResult => f !== null);
-            return { findings: matchedFindings };
+            return { findings: matchedFindings, savedId };
         } else {
             const matchedFindings = (parsed.findings || []).map((raw: any) => {
                 const finding = TONGUE_FINDINGS.find(f => f.key === raw.id);
@@ -90,7 +110,8 @@ export const analyzeTongueHealth = async (files: File[], userInfo: UserInfo | nu
             }).filter((f): f is FindingResult => f !== null);
             return {
                 heatCold: parsed.heatCold,
-                findings: matchedFindings
+                findings: matchedFindings,
+                savedId
             };
         }
 
@@ -110,10 +131,19 @@ export const askAiAboutFinding = async (finding: Finding, question: string): Pro
 
         const prompt = `${systemInstruction}\n\n「${finding.name}」という舌の所見について質問があります。\n所見詳細: ${finding.shortDescription}\n\n私の質問は次のとおりです：「${question}」`;
 
-        const response = await fetch('/api/generate', {
+        // 1. Get Token
+        const tokenRes = await fetch('/api/token');
+        if (!tokenRes.ok) throw new Error("セキュリティトークンの取得に失敗しました。");
+        const { token } = await tokenRes.json();
+
+        // 2. Call Analyze
+        const response = await fetch('/api/analyze', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ prompt })
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ parts: [{ text: prompt }] })
         });
 
         if (!response.ok) {
@@ -121,7 +151,7 @@ export const askAiAboutFinding = async (finding: Finding, question: string): Pro
         }
 
         const data = await response.json();
-        return data.candidates?.[0]?.content?.parts?.[0]?.text || "申し訳ありません、回答を生成できませんでした。";
+        return data.text || "申し訳ありません、回答を生成できませんでした。";
     } catch (error) {
         console.error("Error calling Gemini Proxy API:", error);
         return "AIアシスタントの呼び出し中にエラーが発生しました。しばらくしてからもう一度お試しください。";
