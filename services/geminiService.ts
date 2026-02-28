@@ -54,7 +54,7 @@ export const analyzeTongueHealth = async (files: File[], userInfo: UserInfo | nu
         }
 
         // 1. Get Token
-        const tokenRes = await fetch('/api/token');
+        const tokenRes = await fetch('/api/token', { method: 'POST' });
         if (!tokenRes.ok) throw new Error("セキュリティトークンの取得に失敗しました。");
         const { token } = await tokenRes.json();
 
@@ -132,7 +132,7 @@ export const askAiAboutFinding = async (finding: Finding, question: string): Pro
         const prompt = `${systemInstruction}\n\n「${finding.name}」という舌の所見について質問があります。\n所見詳細: ${finding.shortDescription}\n\n私の質問は次のとおりです：「${question}」`;
 
         // 1. Get Token
-        const tokenRes = await fetch('/api/token');
+        const tokenRes = await fetch('/api/token', { method: 'POST' });
         if (!tokenRes.ok) throw new Error("セキュリティトークンの取得に失敗しました。");
         const { token } = await tokenRes.json();
 

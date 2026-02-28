@@ -1,7 +1,9 @@
-
 import crypto from 'crypto';
 import { GoogleGenAI } from "@google/genai";
 import { createClient } from "@supabase/supabase-js";
+
+// In-memory replay protection (best effort in serverless)
+const usedJtis = new Set<string>();
 
 // This function runs on Vercel Serverless
 export default async function handler(req: any, res: any) {
@@ -22,7 +24,7 @@ export default async function handler(req: any, res: any) {
     try {
         const decoded = Buffer.from(token, 'base64').toString('utf-8');
         const [payload, signature] = decoded.split('|');
-        const [tokenIp, expiryStr] = payload.split(':');
+        const [jti, expiryStr] = payload.split(':');
 
         const expectedSignature = crypto.createHmac('sha256', internalKey).update(payload).digest('hex');
         if (signature !== expectedSignature) {
@@ -32,9 +34,22 @@ export default async function handler(req: any, res: any) {
         if (Date.now() > parseInt(expiryStr, 10)) {
             return res.status(401).json({ error: 'Token Expired' });
         }
+
+        // Replay Protection
+        if (usedJtis.has(jti)) {
+            return res.status(401).json({ error: 'Token already used' });
+        }
+        usedJtis.add(jti);
+        if (usedJtis.size > 10000) usedJtis.clear();
+
     } catch {
         return res.status(401).json({ error: 'Invalid Token Format' });
     }
+
+    // Extract Session ID from cookies
+    const cookies = req.headers.cookie || '';
+    const match = cookies.match(/session_id=([^;]+)/);
+    const sessionId = match ? match[1] : null;
 
 
     // 3. API Config Check
@@ -78,7 +93,8 @@ export default async function handler(req: any, res: any) {
                 .insert([
                     {
                         raw_response: JSON.parse(text),
-                        request_parts: parts
+                        request_parts: parts,
+                        session_id: sessionId
                     }
                 ])
                 .select();
