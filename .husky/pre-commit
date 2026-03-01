@@ -1,0 +1,10 @@
+echo "🔒 Running gitleaks detect --staged..."
+
+# Check if gitleaks is installed
+if ! command -v gitleaks &> /dev/null
+then
+    echo "⚠️ gitleaks is not installed locally. Skipping scan..."
+    exit 0
+fi
+
+gitleaks protect -v --staged -c gitleaks.toml
