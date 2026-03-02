@@ -320,24 +320,33 @@ const App: React.FC = () => {
         saveLastUserInfo(userInfo).catch(err => console.error("Last User Info save failed:", err));
       }
 
-      // Feature Flag check for Research Mode (Strict DEV guard)
-      const isResearchModeEnabled = typeof window !== 'undefined' && localStorage.getItem('IS_RESEARCH_MODE') === 'true';
-      if (import.meta.env.DEV && isResearchModeEnabled && result.result_v2?.output_payload) {
-        const isAgreed = localStorage.getItem('RESEARCH_AGREED') === 'true';
-        if (isAgreed) {
-          const { getAnonymousUserId } = await import('./utils/anonymousId');
-          const anonId = getAnonymousUserId();
-          const payload = result.result_v2.output_payload;
+      // --- RESEARCH MODE (DEV ONLY) ---
+      // Hard Guard 1: Runtime/Build-time environment check
+      const isDevEnv = import.meta.env.DEV || (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'));
 
+      if (isDevEnv) {
+        const isResearchModeEnabled = typeof window !== 'undefined' && localStorage.getItem('IS_RESEARCH_MODE') === 'true';
+        const isAgreed = typeof window !== 'undefined' && localStorage.getItem('RESEARCH_AGREED') === 'true';
+        const payload = result.result_v2?.output_payload;
+
+        if (isResearchModeEnabled && isAgreed && payload) {
           const doResearchLog = async () => {
             try {
+              // Deduplication Guard: Prevent double-send for the same result within 10s
+              const resultHash = `${payload.diagnosis.top1_id}_${payload.guard.level}_${Math.floor(Date.now() / 10000)}`;
+              const lastSentHash = sessionStorage.getItem('z26_research_last_sent_hash');
+              if (lastSentHash === resultHash) return;
+
+              const { getAnonymousUserId } = await import('./utils/anonymousId');
+              const anonId = getAnonymousUserId();
+
               // 1. Get Token securely
               const tokenRes = await fetch('/api/token', { method: 'POST' });
               if (!tokenRes.ok) return;
               const { token } = await tokenRes.json();
 
               // 2. Safe non-blocking fetch
-              await fetch('/api/research', {
+              const res = await fetch('/api/research', {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
@@ -349,11 +358,15 @@ const App: React.FC = () => {
                   level: payload.guard.level,
                   current_type_label: payload.guard.band,
                   is_dummy: localStorage.getItem('DUMMY_TONGUE') === 'true',
-                  app_version: '1.2.1', // Match footer
+                  app_version: '1.2.1',
                   output_version: payload.output_version,
                   payload: payload
                 })
               });
+
+              if (res.ok) {
+                sessionStorage.setItem('z26_research_last_sent_hash', resultHash);
+              }
             } catch (err) {
               console.error('Research logging failed silently:', err);
             }
@@ -361,6 +374,7 @@ const App: React.FC = () => {
           doResearchLog();
         }
       }
+      // --- END RESEARCH MODE ---
 
     } catch (error) {
       console.error("Analysis failed:", error);

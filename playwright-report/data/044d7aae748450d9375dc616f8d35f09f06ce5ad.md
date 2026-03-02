@@ -1,0 +1,123 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - heading "舌診アシスタント2025" [level=1] [ref=e6]
+      - paragraph [ref=e8]: セルフケアのための傾向分析・補助ツール [DEV]
+    - generic [ref=e9]:
+      - generic [ref=e10]:
+        - generic [ref=e11]: "PLAN: LIGHT"
+        - generic [ref=e12]: DUMMY
+      - generic [ref=e13]:
+        - button "履歴" [ref=e14] [cursor=pointer]:
+          - img [ref=e15]
+          - generic [ref=e17]: 履歴
+        - button "設定" [ref=e18] [cursor=pointer]:
+          - img [ref=e19]
+          - generic [ref=e22]: 設定
+  - main [ref=e23]:
+    - generic [ref=e24]:
+      - generic [ref=e26]:
+        - paragraph [ref=e27]: Today's Condition Type
+        - generic [ref=e28]: Analysis Complete
+        - heading "気滞（きたい）タイプ" [level=2] [ref=e29]
+        - paragraph [ref=e30]: 巡りが滞りがちな傾向です。（今日の傾向です）
+        - generic [ref=e31]:
+          - generic [ref=e33]: Recommended Care
+          - paragraph [ref=e34]: 深呼吸や軽いストレッチを。
+      - generic [ref=e35]:
+        - generic [ref=e36]:
+          - heading "Constitutional Patterns / 9分類" [level=3] [ref=e37]: Constitutional Patterns / 9分類
+          - generic [ref=e39]: 現在のタイプ：気滞（きたい）タイプ
+        - generic [ref=e40]:
+          - generic [ref=e41] [cursor=pointer]:
+            - generic [ref=e42]: 🔋
+            - generic [ref=e43]: 気虚
+          - generic [ref=e44] [cursor=pointer]:
+            - generic [ref=e45]: ☀️
+            - generic [ref=e46]: 陽虚
+          - generic [ref=e47] [cursor=pointer]:
+            - generic [ref=e48]: 💧
+            - generic [ref=e49]: 陰虚
+          - generic [ref=e50] [cursor=pointer]:
+            - generic [ref=e51]: 現在
+            - generic [ref=e52]: 🍃
+            - generic [ref=e53]: 気滞
+          - generic [ref=e57] [cursor=pointer]:
+            - generic [ref=e58]: 🔄
+            - generic [ref=e59]: 血お
+          - generic [ref=e60] [cursor=pointer]:
+            - generic [ref=e61]: ☁️
+            - generic [ref=e62]: 痰湿
+          - generic [ref=e63] [cursor=pointer]:
+            - generic [ref=e64]: 🌡️
+            - generic [ref=e65]: 湿熱
+          - generic [ref=e66] [cursor=pointer]:
+            - generic [ref=e67]: 🍇
+            - generic [ref=e68]: 血虚
+          - generic [ref=e69] [cursor=pointer]:
+            - generic [ref=e70]: ✨
+            - generic [ref=e71]: 平和
+        - paragraph [ref=e72]: ※本分析は医学的診断ではありません。日々のバランスを確認する指標としてご活用ください。
+      - generic [ref=e73]:
+        - heading "解析結果" [level=2] [ref=e74]
+        - paragraph [ref=e75]: これは医学的診断ではありません。あくまで健康管理の参考としてご活用ください。
+      - generic [ref=e76]:
+        - generic [ref=e77]: 証判定 (Z26_P2_v1-dummy-null)
+        - heading "🧩 現在の主証と傾向" [level=3] [ref=e78]:
+          - generic [ref=e79]: 🧩
+          - text: 現在の主証と傾向
+        - generic [ref=e81]:
+          - generic [ref=e82]:
+            - generic [ref=e83]: 【 主証判定 】
+            - generic [ref=e84]: 肝気鬱結
+          - generic [ref=e86]:
+            - heading "AI解析メッセージ" [level=4] [ref=e87]
+            - paragraph [ref=e88]: 「身体のバランスを整えましょう。」
+      - generic [ref=e89]:
+        - heading "総合的な所見" [level=3] [ref=e90]
+        - generic [ref=e92]:
+          - img "正面" [ref=e93]
+          - paragraph [ref=e94]: 正面
+        - paragraph [ref=e96]: アップロードいただいた画像を拝見しました。いくつか気になるサインが見受けられます。 健康管理の見直しが必要かもしれません。以下の詳細な所見と推奨アクションをご確認ください。
+      - generic [ref=e97]:
+        - heading "特に注意したい点" [level=3] [ref=e98]
+        - generic [ref=e100]:
+          - generic [ref=e101]:
+            - generic [ref=e102]: ⚠️
+            - generic [ref=e103]:
+              - heading "歯痕" [level=3] [ref=e104]
+              - generic [ref=e105]:
+                - generic [ref=e106]: AI解析コメント
+                - paragraph [ref=e107]: "DUMMY LV2: 縁に歯の跡が見られ、水分代謝の低下を示唆します。"
+              - paragraph
+          - generic [ref=e109]:
+            - paragraph [ref=e110]: 推奨アクション
+            - paragraph
+            - paragraph [ref=e111]:
+              - strong [ref=e112]: 理由：
+          - button "AIアシスタントに質問する ▼" [ref=e114] [cursor=pointer]
+      - generic [ref=e115]:
+        - heading "次のステップ" [level=3] [ref=e116]
+        - paragraph [ref=e117]: 今回の結果は、撮影時の光の加減や体調によっても変わることがあります。より正確な状態を把握するために、以下のことをお勧めします。
+        - list [ref=e118]:
+          - listitem [ref=e119]:
+            - strong [ref=e120]: 再撮影を試す：
+            - text: 数日後に、改めて撮影のポイントを守って再度チェックしてみてください。体調の良い日中に撮影するのがおすすめです。
+          - listitem [ref=e121]:
+            - strong [ref=e122]: 専門家への相談：
+            - text: もし再撮影しても同様の結果が表示される場合や、自覚症状がありご不安な場合は、速やかに医師や歯科医師へ相談しましょう。
+      - generic [ref=e123]:
+        - button "他の所見の例を見る（舌所見図鑑）" [ref=e124] [cursor=pointer]
+        - button "もう一度診断する" [ref=e126] [cursor=pointer]
+  - contentinfo [ref=e127]:
+    - paragraph [ref=e128]: 本アプリは医療的な診断、治療、または助言を提供するものではありません。健康上の問題については、必ず医師または他の適切な医療従事者にご相談ください。
+    - paragraph [ref=e129]: v1.2.1 (Development Build)
+  - generic: "BUILD: 2026.03.02.01"
+  - button "⚙ Dev" [ref=e131] [cursor=pointer]:
+    - generic [ref=e132]: ⚙
+    - generic [ref=e133]: Dev
+  - button "🐞 DEBUG" [ref=e134] [cursor=pointer]
+```

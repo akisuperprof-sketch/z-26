@@ -20,28 +20,33 @@ export default async function handler(req: any, res: any) {
 
     try {
         const decoded = Buffer.from(token, 'base64').toString('utf-8');
-        const [signature, timestamp, nonce, uuid] = decoded.split('.');
-        const expiryStr = timestamp;
-        const jti = uuid;
+        const [payload_str, signature] = decoded.split('|');
+        if (!payload_str || !signature) throw new Error('Invalid format');
+
+        const [jti, expiryStr] = payload_str.split(':');
 
         const expectedSignature = crypto.createHmac('sha256', internalKey)
-            .update(`${expiryStr}.${nonce}.${jti}`)
+            .update(payload_str)
             .digest('hex');
 
         if (signature !== expectedSignature) {
+            console.error('[Research] Invalid Signature');
             return res.status(401).json({ error: 'Invalid Token Signature' });
         }
 
         if (Date.now() > parseInt(expiryStr, 10)) {
+            console.error('[Research] Token Expired');
             return res.status(401).json({ error: 'Token Expired' });
         }
 
         if (usedJtis.has(jti)) {
+            console.error('[Research] Token Replay Detected');
             return res.status(401).json({ error: 'Token already used' });
         }
         usedJtis.add(jti);
         if (usedJtis.size > 10000) usedJtis.clear();
-    } catch {
+    } catch (e) {
+        console.error('[Research] Token Parse Error:', e);
         return res.status(401).json({ error: 'Invalid Token Format' });
     }
 
