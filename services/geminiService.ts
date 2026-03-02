@@ -1,10 +1,54 @@
 import { AnalysisMode, DiagnosisResult, Finding, FindingResult, UserInfo } from '../types';
 import { TONGUE_FINDINGS } from '../constants';
+import { saveDebugLog, DEBUG_KEYS, DEBUG_MODE } from '../utils/debugConfig';
 
 // サーバーサイドAPI経由でGeminiを呼び出すように変更
 const AI_TIMEOUT_MS = 25000; // 25s
 
-export const analyzeTongueHealth = async (files: File[], userInfo: UserInfo | null, mode: AnalysisMode = AnalysisMode.Standard): Promise<DiagnosisResult> => {
+export const analyzeTongueHealth = async (
+    files: File[],
+    userInfo: UserInfo | null,
+    mode: AnalysisMode = AnalysisMode.Standard,
+    userRole: string = 'FREE'
+): Promise<DiagnosisResult> => {
+    // 開発用モック対応 (DEV限定)
+    if (import.meta.env.DEV && typeof window !== 'undefined' && localStorage.getItem('MOCK_AI') === 'true') {
+        console.warn('⚠️ [MOCK_AI] モックモードが有効です。実APIは呼ばれません。');
+        await new Promise(r => setTimeout(r, 1000));
+        return {
+            findings: [],
+            guard: {
+                isNeutral: false,
+                level: 3,
+                levelLabel: "注意 (Mock)",
+                tendency: "単一傾向",
+                primaryPatternName: "気虚 (Mock)",
+                message: "モックモードが有効です。正常にUIが表示されるか確認してください。"
+            },
+            top3: [
+                { id: 'P_QI_DEF', name: '気虚', score: 85, reasons: ['Mock'] },
+                { id: 'P_BLOOD_DEF', name: '血虚', score: 40, reasons: ['Mock'] },
+                { id: 'P_DAMP_HEAT', name: '痰湿', score: 20, reasons: ['Mock'] }
+            ],
+            result_v2: {
+                output_payload: {
+                    output_version: "2.0.0-mock",
+                    guard: { level: 3, band: "注意 (Mock)", mix: "単一傾向" },
+                    diagnosis: {
+                        top1_id: "P_QI_DEF",
+                        top2_id: "P_BLOOD_DEF",
+                        top3_ids: ["P_QI_DEF", "P_BLOOD_DEF", "P_DAMP_HEAT"]
+                    },
+                    display: {
+                        template_key: "standard_pro",
+                        show: { show_pattern_name: true, show_top3_list: true }
+                    },
+                    stats: { answered: 18, total: 20 }
+                }
+            }
+        };
+    }
+
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), AI_TIMEOUT_MS);
 
@@ -37,6 +81,25 @@ export const analyzeTongueHealth = async (files: File[], userInfo: UserInfo | nu
             ${userContext}
             Identify visible findings from the defined list. Output as JSON: [{ "id": "...", "explanation": "..." }]
             defined Findings:
+            ${findingsContext}
+            `;
+        } else if (mode === AnalysisMode.Pro) {
+            prompt = `
+            You are an expert in TCM tongue diagnosis. (Pro/v2 Analysis Mode)
+            ${userContext}
+            Output JSON format:
+            {
+              "tongue": {
+                "bodyColor": "淡" | "淡紅" | "紅" | "絳（深紅）" | "紫",
+                "bodyShape": string[],
+                "coatColor": "白" | "黄" | "灰" | "黒" | null,
+                "coatThickness": "無" | "薄" | "厚",
+                "coatTexture": string[],
+                "moisture": "正常" | "乾" | "滑"
+              },
+              "findings": [ { "id": "...", "explanation": "string" } ]
+            }
+            Findings context:
             ${findingsContext}
             `;
         } else {
@@ -75,9 +138,11 @@ export const analyzeTongueHealth = async (files: File[], userInfo: UserInfo | nu
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             },
-            body: JSON.stringify({ parts }),
+            body: JSON.stringify({ parts, user_role: userRole }),
             signal: controller.signal
         });
+
+        saveDebugLog(DEBUG_KEYS.LAST_REQUEST, { parts });
 
         clearTimeout(timeoutId);
 
@@ -87,6 +152,9 @@ export const analyzeTongueHealth = async (files: File[], userInfo: UserInfo | nu
         }
 
         const data = await response.json();
+
+        saveDebugLog(DEBUG_KEYS.LAST_RESPONSE, { status: response.status, data });
+
         const aiResponseText = data.text;
         const savedId = data.savedId;
 
@@ -103,6 +171,16 @@ export const analyzeTongueHealth = async (files: File[], userInfo: UserInfo | nu
                 return finding ? { ...finding, aiExplanation: raw.explanation } as FindingResult : null;
             }).filter((f): f is FindingResult => f !== null);
             return { findings: matchedFindings, savedId };
+        } else if (mode === AnalysisMode.Pro) {
+            const matchedFindings = (parsed.findings || []).map((raw: any) => {
+                const finding = TONGUE_FINDINGS.find(f => f.key === raw.id);
+                return finding ? { ...finding, aiExplanation: raw.explanation } as FindingResult : null;
+            }).filter((f): f is FindingResult => f !== null);
+            return {
+                findings: matchedFindings,
+                tongueInput: parsed.tongue,
+                savedId
+            } as any;
         } else {
             const matchedFindings = (parsed.findings || []).map((raw: any) => {
                 const finding = TONGUE_FINDINGS.find(f => f.key === raw.id);
@@ -117,6 +195,7 @@ export const analyzeTongueHealth = async (files: File[], userInfo: UserInfo | nu
 
     } catch (error: any) {
         clearTimeout(timeoutId);
+        saveDebugLog(DEBUG_KEYS.LAST_ERROR, { message: error.message || "Unknown error", error });
         if (error.name === 'AbortError') {
             throw new Error("解析に時間がかかりすぎています。通信環境を確認し、再試行してください。");
         }

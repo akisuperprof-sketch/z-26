@@ -64,7 +64,7 @@ export default async function handler(req: any, res: any) {
     const supabase = (supabaseUrl && supabaseKey) ? createClient(supabaseUrl, supabaseKey) : null;
 
     try {
-        const { parts, systemInstruction } = req.body;
+        const { parts, systemInstruction, user_role } = req.body;
 
         // Initialize Gemini Client
         const ai = new GoogleGenAI({ apiKey });
@@ -94,7 +94,8 @@ export default async function handler(req: any, res: any) {
                     {
                         raw_response: JSON.parse(text),
                         request_parts: parts,
-                        session_id: sessionId
+                        session_id: sessionId,
+                        user_role: user_role || 'FREE'
                     }
                 ])
                 .select();

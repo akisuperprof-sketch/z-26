@@ -19,6 +19,15 @@ export interface Pattern {
     region: 'tip' | 'side' | 'center' | 'root' | 'any';
 }
 
+export interface DiagnosticGuard {
+    isNeutral: boolean;
+    level: 1 | 2 | 3 | 4;
+    levelLabel: string;
+    tendency: '混合傾向' | '単一傾向' | '通常';
+    primaryPatternName?: string;
+    message: string;
+}
+
 export interface CoreOutput {
     axes: {
         X_final: number;
@@ -31,6 +40,7 @@ export interface CoreOutput {
         primary: string;
         confidence: number;
     };
+    guard: DiagnosticGuard;
     top3: Array<{
         id: string;
         name: string;
@@ -318,6 +328,53 @@ export function analyzeCore(tongue: TongueInput, hearing: HearingInput): CoreOut
     candidateScores.sort((a, b) => b.score - a.score);
     const top3 = candidateScores.slice(0, 3);
 
+    const t1 = top3[0];
+    const t2 = top3[1];
+
+    const isNeutral = Math.abs(X_final) <= 15 && Math.abs(Y_final) <= 15 && Math.abs(Z_final) <= 15;
+
+    let level: 1 | 2 | 3 | 4 = 1;
+    let levelLabel = "偏りなし";
+    if (isNeutral) {
+        level = 1;
+        levelLabel = "偏りなし";
+    } else if (t1.score < 60) {
+        level = 2;
+        levelLabel = "軽い傾向";
+    } else if (t1.score < 75) {
+        level = 3;
+        levelLabel = "やや強い傾向";
+    } else {
+        level = 4;
+        levelLabel = "明確な証";
+    }
+
+    let tendency: '混合傾向' | '単一傾向' | '通常' = '通常';
+    if (!isNeutral) {
+        const diff = t1.score - (t2?.score || 0);
+        if (diff < 10) tendency = '混合傾向';
+        else if (diff >= 20) tendency = '単一傾向';
+    }
+
+    let message = "";
+    if (isNeutral) {
+        message = "大きな偏りは見られません";
+    }
+
+    let primaryPatternName = undefined;
+    if (level >= 3 && !isNeutral) {
+        primaryPatternName = t1.name;
+    }
+
+    const guard: DiagnosticGuard = {
+        isNeutral,
+        level,
+        levelLabel,
+        tendency,
+        primaryPatternName,
+        message
+    };
+
     return {
         axes: {
             X_final,
@@ -330,6 +387,7 @@ export function analyzeCore(tongue: TongueInput, hearing: HearingInput): CoreOut
             primary: inferredRegion,
             confidence: 1.0 // Future scope
         },
+        guard,
         top3,
         inputs: {
             tongue,

@@ -1,0 +1,202 @@
+=== Sample 1: Healthy ===
+{
+  "axes": {
+    "X_final": 4,
+    "Y_final": 4,
+    "Z_final": 3,
+    "type4": "混合",
+    "levels": {
+      "X": 4,
+      "Y": 4,
+      "Z": 3
+    }
+  },
+  "region": {
+    "primary": "center",
+    "confidence": 1
+  },
+  "top3": [
+    {
+      "id": "P_LIVER_QI_STAG",
+      "name": "肝気鬱結",
+      "score": 87,
+      "reasons": [
+        "虚実傾向が一致",
+        "寒熱傾向が一致",
+        "湿燥傾向が一致"
+      ]
+    },
+    {
+      "id": "P_STOMACH_COLD",
+      "name": "胃寒",
+      "score": 64,
+      "reasons": [
+        "虚実傾向が一致",
+        "湿燥傾向が一致",
+        "主領域が一致"
+      ]
+    },
+    {
+      "id": "P_LUNG_QI_DEF",
+      "name": "肺気虚",
+      "score": 54,
+      "reasons": [
+        "寒熱傾向が一致",
+        "湿燥傾向が一致"
+      ]
+    }
+  ],
+  "inputs": {
+    "tongue": {
+      "bodyColor": "淡紅",
+      "coatColor": "白",
+      "coatThickness": "薄",
+      "moisture": "正常",
+      "regionMap": {}
+    },
+    "hearing": {
+      "Q01": 0,
+      "Q02": 0,
+      "Q03": 0,
+      "Q04": 0,
+      "Q05": 0,
+      "Q06": 0,
+      "Q07": 0,
+      "Q08": 0,
+      "Q09": 0,
+      "Q10": 0,
+      "Q11": 0,
+      "Q12": 0,
+      "Q13": 0,
+      "Q14": 0,
+      "Q15": 0,
+      "Q16": 0,
+      "Q17": 0,
+      "Q18": 0,
+      "Q19": 0,
+      "Q20": 0
+    }
+  }
+}
+
+=== Sample 2: Blood Stasis + Missing Audio ===
+{
+  "axes": {
+    "X_final": -21,
+    "Y_final": -29,
+    "Z_final": -3,
+    "type4": "実熱",
+    "levels": {
+      "X": -21,
+      "Y": -29,
+      "Z": -3
+    }
+  },
+  "region": {
+    "primary": "tip",
+    "confidence": 1
+  },
+  "top3": [
+    {
+      "id": "P_HEART_BLOOD_STASIS",
+      "name": "心血瘀",
+      "score": 74,
+      "reasons": [
+        "寒熱傾向が一致",
+        "湿燥傾向が一致",
+        "主領域が一致"
+      ]
+    },
+    {
+      "id": "P_LIVER_QI_STAG",
+      "name": "肝気鬱結",
+      "score": 72,
+      "reasons": [
+        "虚実傾向が一致",
+        "寒熱傾向が一致",
+        "湿燥傾向が一致"
+      ]
+    },
+    {
+      "id": "P_LUNG_QI_DEF",
+      "name": "肺気虚",
+      "score": 54,
+      "reasons": [
+        "寒熱傾向が一致",
+        "湿燥傾向が一致",
+        "主領域が一致"
+      ]
+    }
+  ],
+  "inputs": {
+    "tongue": {
+      "bodyColor": "紫",
+      "bodyShape": [
+        "瘀点"
+      ],
+      "coatColor": "灰黒",
+      "moisture": "乾",
+      "regionMap": {
+        "tip": [
+          "紫"
+        ]
+      }
+    },
+    "hearing": {
+      "Q01": null,
+      "Q02": null,
+      "Q03": null,
+      "Q04": 1,
+      "Q05": null,
+      "Q06": null,
+      "Q07": 2,
+      "Q08": 0,
+      "Q09": null,
+      "Q10": 2,
+      "Q11": null,
+      "Q12": null,
+      "Q13": null,
+      "Q14": null,
+      "Q15": null,
+      "Q16": 2,
+      "Q17": 1,
+      "Q18": null,
+      "Q19": null,
+      "Q20": null
+    }
+  }
+}
+
+=== Sample 3: Liver Stagnation (Aux Rule) ===
+[
+  {
+    "id": "P_LIVER_QI_STAG",
+    "name": "肝気鬱結",
+    "score": 100,
+    "reasons": [
+      "虚実傾向が一致",
+      "寒熱傾向が一致",
+      "湿燥傾向が一致",
+      "主領域が一致"
+    ]
+  },
+  {
+    "id": "P_COLD_STAGN_LIVER",
+    "name": "寒滞肝脈",
+    "score": 63,
+    "reasons": [
+      "虚実傾向が一致",
+      "湿燥傾向が一致",
+      "主領域が一致"
+    ]
+  },
+  {
+    "id": "P_HEART_BLOOD_STASIS",
+    "name": "心血瘀",
+    "score": 57,
+    "reasons": [
+      "寒熱傾向が一致",
+      "湿燥傾向が一致"
+    ]
+  }
+]

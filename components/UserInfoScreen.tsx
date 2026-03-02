@@ -115,7 +115,7 @@ const UserInfoScreen: React.FC<UserInfoScreenProps> = ({ onNext }) => {
     <button
       onClick={() => setGender(value)}
       className={`px-4 py-2 rounded-md font-medium border transition-colors ${gender === value
-        ? 'bg-blue-600 text-white border-blue-600'
+        ? 'bg-brand-primary text-white border-brand-primary'
         : 'bg-white text-slate-600 border-slate-300 hover:bg-slate-50'
         }`}
     >
@@ -124,8 +124,8 @@ const UserInfoScreen: React.FC<UserInfoScreenProps> = ({ onNext }) => {
   );
 
   return (
-    <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-lg border border-slate-200 animate-fade-in">
-      <h2 className="text-2xl font-bold text-slate-800 mb-6 text-center">基本情報の入力</h2>
+    <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 animate-fade-in">
+      <h2 className="text-2xl font-bold text-brand-primary mb-6 text-center">基本情報の入力</h2>
 
       <div className="space-y-6">
         <div className="grid grid-cols-2 gap-4">
@@ -141,7 +141,7 @@ const UserInfoScreen: React.FC<UserInfoScreenProps> = ({ onNext }) => {
                 const val = e.target.value;
                 if (val === '' || /^\d+$/.test(val)) setAge(val === '' ? '' : Number(val));
               }}
-              className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all ${errors.age ? 'border-red-500 bg-red-50' : 'border-slate-300'}`}
+              className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary outline-none transition-all ${errors.age ? 'border-red-500 bg-red-50' : 'border-slate-300'}`}
               placeholder="例: 30"
             />
             {errors.age && <p className="text-red-500 text-xs mt-1">{errors.age}</p>}
@@ -172,7 +172,7 @@ const UserInfoScreen: React.FC<UserInfoScreenProps> = ({ onNext }) => {
                 const val = e.target.value;
                 if (val === '' || /^\d+$/.test(val)) setHeight(val === '' ? '' : Number(val));
               }}
-              className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+              className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary outline-none transition-all"
               placeholder="例: 170"
             />
           </div>
@@ -188,7 +188,7 @@ const UserInfoScreen: React.FC<UserInfoScreenProps> = ({ onNext }) => {
                 const val = e.target.value;
                 if (val === '' || /^\d+$/.test(val)) setWeight(val === '' ? '' : Number(val));
               }}
-              className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+              className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary outline-none transition-all"
               placeholder="例: 60"
             />
           </div>
@@ -202,7 +202,7 @@ const UserInfoScreen: React.FC<UserInfoScreenProps> = ({ onNext }) => {
             name="concerns"
             value={concerns}
             onChange={(e) => setConcerns(e.target.value)}
-            className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+            className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary outline-none transition-all"
             rows={3}
             placeholder="例：最近疲れやすい、口が乾く、など"
           />
@@ -212,7 +212,7 @@ const UserInfoScreen: React.FC<UserInfoScreenProps> = ({ onNext }) => {
 
         <button
           onClick={handleSubmit}
-          className="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 mt-4"
+          className="w-full bg-brand-primary text-white font-bold py-4 px-6 rounded-2xl hover:opacity-90 transition-all duration-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-primary mt-4"
         >
           次へ進む
         </button>

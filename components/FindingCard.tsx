@@ -31,7 +31,7 @@ const FindingCard: React.FC<FindingCardProps> = ({ finding }) => {
 
 
   return (
-    <div className={`p-5 rounded-2xl shadow-md border-l-8 transition-all duration-300 ${styles.bg} ${styles.border}`}>
+    <div className={`p-5 rounded-2xl shadow-sm border-l-8 transition-all duration-300 ${styles.bg} ${styles.border}`}>
       <div className="flex flex-col sm:flex-row sm:items-start">
         <div className="text-3xl mr-4 mb-2 sm:mb-0">{styles.icon}</div>
         <div className="flex-1">
@@ -60,7 +60,7 @@ const FindingCard: React.FC<FindingCardProps> = ({ finding }) => {
       </div>
 
       <div className="mt-4 pl-0 sm:pl-11">
-        <button onClick={() => setIsExpanded(!isExpanded)} className="text-sm font-semibold text-blue-600 hover:underline">
+        <button onClick={() => setIsExpanded(!isExpanded)} className="text-sm font-semibold text-brand-primary hover:underline">
           {isExpanded ? 'AIアシスタントを閉じる' : 'AIアシスタントに質問する ▼'}
         </button>
         {isExpanded && (
@@ -70,13 +70,13 @@ const FindingCard: React.FC<FindingCardProps> = ({ finding }) => {
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
               placeholder={`例：「${finding.name}」について、もっと詳しく教えてください。`}
-              className="w-full p-2 border border-slate-300 rounded-md text-sm focus:ring-blue-500 focus:border-blue-500"
+              className="w-full p-2 border border-slate-300 rounded-md text-sm focus:ring-brand-primary focus:border-brand-primary"
               rows={2}
             />
             <button
               onClick={handleAskAI}
               disabled={isLoading || !question.trim()}
-              className="mt-2 w-full sm:w-auto bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 disabled:bg-slate-300 transition-colors text-sm"
+              className="mt-2 w-full sm:w-auto bg-brand-primary text-white font-bold py-2 px-4 rounded-lg hover:opacity-90 disabled:bg-slate-300 transition-opacity text-sm shadow-sm"
             >
               {isLoading ? '考え中...' : 'AIに質問する'}
             </button>

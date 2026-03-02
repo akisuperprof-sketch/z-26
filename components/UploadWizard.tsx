@@ -1,13 +1,16 @@
 
 import React, { useState, useCallback, useMemo, useRef } from 'react';
-import { ImageSlot, UploadedImage } from '../types';
+import { ImageSlot, UploadedImage, AnalysisMode } from '../types';
 import { compressImage } from '../utils/imageUtils';
 import CameraCapture from './CameraCapture';
 import CameraGuideDev from './CameraGuideDev';
+import StreakBadge from './StreakBadge';
 
 interface UploadWizardProps {
   onStartAnalysis: (images: UploadedImage[]) => void;
   devMode?: boolean;
+  disabled?: boolean;
+  plan?: AnalysisMode;
 }
 
 const GUIDE_MESSAGES = {
@@ -108,7 +111,7 @@ const ImageUploadSlot: React.FC<{
   );
 };
 
-const UploadWizard: React.FC<UploadWizardProps> = ({ onStartAnalysis, devMode }) => {
+const UploadWizard: React.FC<UploadWizardProps> = ({ onStartAnalysis, devMode, disabled, plan }) => {
   const [isSimpleMode, setIsSimpleMode] = useState(true);
   const [images, setImages] = useState<Record<ImageSlot, UploadedImage | null>>({
     [ImageSlot.Front]: null,
@@ -205,7 +208,7 @@ const UploadWizard: React.FC<UploadWizardProps> = ({ onStartAnalysis, devMode })
   };
 
   return (
-    <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-lg border border-slate-200 animate-fade-in relative">
+    <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 animate-fade-in relative">
       {isCompressing && (
         <div className="absolute inset-0 bg-white/50 z-10 flex items-center justify-center rounded-2xl">
           <div className="bg-black/70 text-white px-4 py-2 rounded-lg text-sm">画像を最適化中...</div>
@@ -223,6 +226,7 @@ const UploadWizard: React.FC<UploadWizardProps> = ({ onStartAnalysis, devMode })
           <CameraCapture
             onCapture={handleWebCamCapture}
             onClose={() => setShowWebCam(false)}
+            plan={plan}
           />
         )
       )}
@@ -250,7 +254,7 @@ const UploadWizard: React.FC<UploadWizardProps> = ({ onStartAnalysis, devMode })
             <div className="space-y-3">
               <button
                 onClick={handleCameraSelect}
-                className="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 shadow-md flex items-center justify-center space-x-2"
+                className="w-full bg-brand-primary text-white font-bold py-3 px-4 rounded-lg hover:opacity-90 shadow-sm flex items-center justify-center space-x-2 transition-opacity"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-1.586a1 1 0 01-.707-.293l-1.121-1.121A2 2 0 0011.172 2H8.828a2 2 0 00-1.414.586L6.293 4.707A1 1 0 015.586 5H4zm6 9a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
@@ -274,19 +278,22 @@ const UploadWizard: React.FC<UploadWizardProps> = ({ onStartAnalysis, devMode })
 
       {/* Main UI */}
       <div className="mb-6 text-center">
-        <h2 className="text-2xl font-bold text-slate-800">舌の画像を撮影</h2>
+        <div className="flex justify-center mb-3">
+          <StreakBadge />
+        </div>
+        <h2 className="text-2xl font-bold text-brand-primary">舌の画像を撮影</h2>
         <p className="text-slate-600 mt-1 mb-4">モードを選択して画像をアップロードしてください</p>
 
         <div className="inline-flex bg-slate-100 p-1 rounded-lg text-sm font-bold shadow-inner">
           <button
             onClick={() => setIsSimpleMode(true)}
-            className={`px-6 py-2 rounded-md transition-all duration-300 ${isSimpleMode ? 'bg-white shadow-sm text-blue-700' : 'text-slate-400 hover:text-slate-600'}`}
+            className={`px-6 py-2 rounded-md transition-all duration-300 ${isSimpleMode ? 'bg-white shadow-sm text-brand-primary' : 'text-slate-400 hover:text-slate-600'}`}
           >
             シンプル
           </button>
           <button
             onClick={() => setIsSimpleMode(false)}
-            className={`px-6 py-2 rounded-md transition-all duration-300 ${!isSimpleMode ? 'bg-white shadow-sm text-blue-700' : 'text-slate-400 hover:text-slate-600'}`}
+            className={`px-6 py-2 rounded-md transition-all duration-300 ${!isSimpleMode ? 'bg-white shadow-sm text-brand-primary' : 'text-slate-400 hover:text-slate-600'}`}
           >
             プロモード
           </button>
@@ -393,12 +400,40 @@ const UploadWizard: React.FC<UploadWizardProps> = ({ onStartAnalysis, devMode })
         )}
       </div>
 
+      {import.meta.env.DEV && typeof window !== 'undefined' && localStorage.getItem('IS_RESEARCH_MODE') === 'true' && (
+        <div className="mb-6 p-4 bg-blue-50/80 border border-blue-200 rounded-xl text-left">
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              className="mt-1 w-4 h-4 text-brand-primary border-slate-300 rounded focus:ring-brand-primary"
+              checked={localStorage.getItem('RESEARCH_AGREED') === 'true'}
+              onChange={(e) => {
+                const isChecked = e.target.checked;
+                if (isChecked) {
+                  localStorage.setItem('RESEARCH_AGREED', 'true');
+                } else {
+                  localStorage.removeItem('RESEARCH_AGREED');
+                }
+                // force re-render simple toggle
+                setIsCompressing(!isCompressing);
+                setTimeout(() => setIsCompressing(false), 10);
+              }}
+            />
+            <span className="text-xs text-slate-700 leading-snug">
+              <span className="font-bold block mb-0.5 text-brand-primary">研究モード (任意)</span>
+              本機能は研究目的で、傾向データを<span className="font-bold underline">匿名で記録</span>します。医療診断ではありません。同意がない場合は保存されません。
+            </span>
+          </label>
+        </div>
+      )}
+
       <button
         onClick={handleSubmit}
-        disabled={!allImagesUploaded || isCompressing}
-        className="w-full bg-blue-600 text-white font-bold py-4 px-6 rounded-xl hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-all duration-300 shadow-md hover:shadow-lg transform active:scale-[0.98]"
+        disabled={!allImagesUploaded || isCompressing || disabled}
+        className={`w-full text-white font-bold py-4 px-6 rounded-2xl transition-all duration-300 shadow-sm ${disabled ? 'bg-red-300 cursor-not-allowed' : 'bg-brand-primary hover:opacity-90 disabled:bg-slate-300 disabled:cursor-not-allowed'
+          }`}
       >
-        {isCompressing ? '処理中...' : (allImagesUploaded ? '解析を開始する' : (isSimpleMode ? '正面画像を撮影してください' : 'すべての画像を撮影してください'))}
+        {disabled ? '現在利用できません' : (isCompressing ? '処理中...' : (allImagesUploaded ? '解析を開始する' : (isSimpleMode ? '正面画像を撮影してください' : 'すべての画像を撮影してください')))}
       </button>
     </div>
   );

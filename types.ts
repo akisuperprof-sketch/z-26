@@ -1,4 +1,57 @@
 
+export interface TongueInput {
+  bodyColor?: string | null;
+  bodyShape?: string[];
+  coatColor?: string | null;
+  coatThickness?: string | null;
+  coatTexture?: string[];
+  moisture?: string | null;
+  regionMap?: Record<string, string[]>;
+}
+
+export type HearingInput = Record<string, number | null>;
+
+export interface DiagnosticGuard {
+  isNeutral: boolean;
+  level: number;
+  levelLabel: string;
+  tendency: string;
+  primaryPatternName?: string;
+  message: string;
+}
+
+export interface DiagnosisPattern {
+  id: string;
+  name: string;
+  score: number;
+  reasons: string[];
+}
+
+export interface AnalysisV2Payload {
+  output_version: string;
+  guard: {
+    level: number;
+    band: string;
+    mix: string;
+  };
+  diagnosis: {
+    top1_id: string | null;
+    top2_id: string | null;
+    top3_ids: string[];
+  };
+  display: {
+    template_key: string;
+    show: {
+      show_pattern_name: boolean;
+      show_top3_list: boolean;
+    };
+  };
+  stats?: {
+    answered: number;
+    total: number;
+  };
+}
+
 export enum AppState {
   Disclaimer,
   UserInfo,
@@ -9,6 +62,8 @@ export enum AppState {
   History,
   Dictionary,
   DevSettings, // 隠し設定画面用（追加）
+  ImageQualityGate, // 画像品質チェック（追加）
+  AdminDashboard, // 管理者ダッシュボード（追加）
 }
 
 export enum RiskLevel {
@@ -52,11 +107,17 @@ export interface DiagnosisResult {
   findings: FindingResult[];
   liteResult?: LiteResult; // Added for Lite Plan
   savedId?: string;
+  guard?: DiagnosticGuard;
+  top3?: DiagnosisPattern[];
+  result_v2?: {
+    output_payload: AnalysisV2Payload;
+  };
 }
 
 export enum AnalysisMode {
   Standard = 'standard',
   HeatCold = 'heat_cold',
+  Pro = 'pro',
 }
 
 export enum ImageSlot {

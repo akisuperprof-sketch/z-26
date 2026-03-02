@@ -7,13 +7,32 @@ import HearingScreen from './components/HearingScreen';
 import AnalysisScreen from './components/AnalysisScreen';
 import ResultsScreen from './components/ResultsScreen';
 import HistoryScreen from './components/HistoryScreen';
+import StreakBadge from './components/StreakBadge';
 import FindingsDictionaryScreen from './components/FindingsDictionaryScreen';
 import SettingsModal from './components/SettingsModal';
-import { AnalysisMode, AppState, DiagnosisResult, FindingResult, UploadedImage, UserInfo, Gender } from './types';
+import ImageQualityGateScreen from './components/ImageQualityGateScreen';
+import { AnalysisMode, AppState, DiagnosisResult, FindingResult, UploadedImage, UserInfo, Gender, ImageSlot } from './types';
 import { routeTongueAnalysis } from './services/tongueAnalyzerRouter';
+import { analyzeImageQuality } from './utils/imageQualityAnalyzer';
 import { saveHistory, getHistoryItem, reconstructFindings, reconstructImages, saveLastUserInfo } from './services/historyService';
 import DevSettingsScreen from './components/DevSettingsScreen';
 import { isDevEnabled } from './utils/devFlags';
+import { colors } from './styles/tokens';
+import { updateStreak } from './utils/streak';
+import { pushHistoryMini } from './utils/historyMini';
+import { getConditionType } from './utils/typeMapper';
+import { DebugPanel } from './components/DebugPanel';
+import AdminDashboard from './components/AdminDashboard';
+import { saveLatestPayloadForDebug } from './utils/debugStorage';
+import DevControlCenter from './components/DevControlCenter';
+
+// Inject CSS variables from styles/tokens.ts (SSOT)
+if (typeof document !== 'undefined') {
+  document.documentElement.style.setProperty('--c-light-primary', colors.light.primary);
+  document.documentElement.style.setProperty('--c-light-secondary', colors.light.secondary);
+  document.documentElement.style.setProperty('--c-pro-secondary', colors.pro.secondary);
+  document.documentElement.style.setProperty('--c-pro-cta', colors.pro.cta);
+}
 
 const App: React.FC = () => {
   const [appState, setAppState] = useState<AppState>(AppState.Disclaimer);
@@ -26,8 +45,16 @@ const App: React.FC = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [devMode, setDevMode] = useState(isDevEnabled());
   const [analysisMode, setAnalysisMode] = useState<AnalysisMode>(AnalysisMode.Standard);
+  const [qualityReason, setQualityReason] = useState<string>("");
+  const [showDevFlagBanner, setShowDevFlagBanner] = useState(false);
 
-  // ... (Settings & Dev Mode states are above)
+  // Force Pro Mode from localStorage (DEV ONLY)
+  const isForcedPro = React.useMemo(() => {
+    if (!import.meta.env.DEV) return false;
+    return localStorage.getItem("FORCE_PRO") === "true";
+  }, []);
+
+  const currentEffectivePlan = isForcedPro ? AnalysisMode.Pro : (devMode ? analysisMode : AnalysisMode.Standard);
 
   const handleAgree = useCallback(() => {
     setAppState(AppState.UserInfo);
@@ -40,18 +67,59 @@ const App: React.FC = () => {
 
   // URL-based Hidden Routing for Dev Settings (/dev/settings)
   React.useEffect(() => {
+    // 1. One-click Test Shortcut (DEV ONLY)
+    if (import.meta.env.DEV && localStorage.getItem("DEBUG_AUTO_TEST") === "v1") {
+      if (!userInfo) {
+        setUserInfo({
+          age: 30,
+          gender: Gender.Male,
+          height: 170,
+          weight: 65,
+          concerns: "DEBUG AUTO TEST"
+        });
+      }
+      if (uploadedImages.length === 0) {
+        setUploadedImages([
+          { slot: ImageSlot.Front, file: new File([""], "dummy.jpg", { type: "image/jpeg" }), previewUrl: "/tongue_scale_chart.jpg" }
+        ]);
+      }
+      if (appState !== AppState.Hearing && appState !== AppState.Analyzing && appState !== AppState.Results) {
+        setAppState(AppState.Hearing);
+      }
+    }
+
+    // Safety check for production
+    if (!import.meta.env.DEV) {
+      const hasForcePro = localStorage.getItem("FORCE_PRO") === "true";
+      const hasDummy = localStorage.getItem("DUMMY_TONGUE") === "true";
+      const hasMock = localStorage.getItem("MOCK_AI") === "true";
+      const hasDebugAutoTest = localStorage.getItem("DEBUG_AUTO_TEST") === "v1";
+      const hasDummyPreset = !!localStorage.getItem("DUMMY_PRESET");
+
+      if (hasForcePro || hasDummy || hasMock || hasDebugAutoTest || hasDummyPreset) {
+        console.error("CRITICAL: DEV flags detected in production! Disabling.");
+        setShowDevFlagBanner(true);
+        localStorage.removeItem("FORCE_PRO");
+        localStorage.removeItem("DUMMY_TONGUE");
+        localStorage.removeItem("MOCK_AI");
+        localStorage.removeItem("DEBUG_AUTO_TEST");
+        localStorage.removeItem("DUMMY_PRESET");
+      }
+    }
+
     const handleLocationCheck = () => {
       if (window.location.pathname === '/dev/settings') {
         setAppState(AppState.DevSettings);
+      } else if (window.location.pathname === '/admin/report') {
+        setAppState(AppState.AdminDashboard);
       } else if (window.location.hash === '#dev-settings') {
-        // Redirect hash to pathname for unification
         window.history.replaceState(null, '', '/dev/settings');
         setAppState(AppState.DevSettings);
       }
     };
     window.addEventListener('popstate', handleLocationCheck);
     window.addEventListener('hashchange', handleLocationCheck);
-    handleLocationCheck(); // Check on init
+    handleLocationCheck();
     return () => {
       window.removeEventListener('popstate', handleLocationCheck);
       window.removeEventListener('hashchange', handleLocationCheck);
@@ -77,8 +145,6 @@ const App: React.FC = () => {
       if (record) {
         const findings = reconstructFindings(record.results);
         const images = reconstructImages(record.images);
-
-        // Adapt old history to new result structure (missing heatCold is fine)
         const result: DiagnosisResult = { findings };
 
         setUserInfo(record.userInfo);
@@ -98,7 +164,7 @@ const App: React.FC = () => {
   }, []);
 
   const handleDictionaryBack = useCallback(() => {
-    if (analysisResult) { // Check if not null
+    if (analysisResult) {
       setAppState(AppState.Results);
     } else {
       setAppState(AppState.Uploading);
@@ -111,24 +177,142 @@ const App: React.FC = () => {
   }, []);
 
   const handleHearingNext = useCallback(async (hearingAnswers: Record<string, number | null>) => {
+    const isDummy = import.meta.env.DEV && typeof window !== 'undefined' && localStorage.getItem("DUMMY_TONGUE") === "true";
+
+    // 1. Image Quality Guard (Skip if DUMMY)
+    if (!isDummy) {
+      const checkResults = await Promise.all(uploadedImages.map(async (img) => {
+        return new Promise<{ ok: boolean, reason: string }>((resolve) => {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          const tempImg = new Image();
+          tempImg.onload = () => {
+            canvas.width = 100;
+            canvas.height = 100;
+            ctx?.drawImage(tempImg, 0, 0, 100, 100);
+            const imageData = ctx?.getImageData(0, 0, 100, 100);
+            if (!imageData) return resolve({ ok: true, reason: "" });
+            const data = imageData.data;
+
+            // A. Brightness Check
+            let totalBrightness = 0;
+            for (let i = 0; i < data.length; i += 4) {
+              totalBrightness += (data[i] + data[i + 1] + data[i + 2]) / 3;
+            }
+            const avgBrightness = totalBrightness / (data.length / 4);
+            if (avgBrightness < 35) return resolve({ ok: false, reason: "画像が暗すぎます" });
+            if (avgBrightness > 235) return resolve({ ok: false, reason: "画像が明るすぎます（白飛び）" });
+
+            // B. Blur Check (Simple Laplacian Variance heuristic)
+            // 3x3 Laplacian Kernel: [[0, 1, 0], [1, -4, 1], [0, 1, 0]]
+            const gray = new Float32Array(100 * 100);
+            for (let i = 0; i < data.length; i += 4) {
+              gray[i / 4] = (data[i] + data[i + 1] + data[i + 2]) / 3;
+            }
+
+            let lapVar = 0;
+            let lapSum = 0;
+            const laplacian = new Float32Array(100 * 100);
+            for (let y = 1; y < 99; y++) {
+              for (let x = 1; x < 99; x++) {
+                const idx = y * 100 + x;
+                const val = gray[idx] * -4 + gray[idx - 1] + gray[idx + 1] + gray[idx - 100] + gray[idx + 100];
+                laplacian[idx] = val;
+                lapSum += val;
+              }
+            }
+            const lapAvg = lapSum / (98 * 98);
+            for (let i = 0; i < laplacian.length; i++) {
+              lapVar += Math.pow(laplacian[i] - lapAvg, 2);
+            }
+            const variance = lapVar / (98 * 98);
+
+            console.log(`[QC] Brightness: ${avgBrightness.toFixed(1)}, BlurVar: ${variance.toFixed(1)}`);
+            // Threshold 10 is very blurry for 100x100 downscale
+            if (variance < 10) return resolve({ ok: false, reason: "画像がぼけています" });
+
+            resolve({ ok: true, reason: "" });
+          };
+          tempImg.src = img.previewUrl;
+        });
+      }));
+
+      const fail = checkResults.find(r => !r.ok);
+      if (fail) {
+        setQualityReason(fail.reason);
+        setAppState(AppState.ImageQualityGate);
+        return;
+      }
+    }
+
     setAppState(AppState.Analyzing);
 
     try {
       setAnalysisError(null);
       const files = uploadedImages.map(img => img.file);
-      const currentMode = isDevEnabled() ? analysisMode : AnalysisMode.Standard;
+      const currentMode = currentEffectivePlan;
+      const userRole = localStorage.getItem('role') || 'FREE';
 
-      // In the real integration we would send hearingAnswers to the analyzer.
-      // Currently routeTongueAnalysis only takes files and userInfo.
-      // E.g., const result = await routeTongueAnalysis(files, userInfo, currentMode, hearingAnswers);
-      const result = await routeTongueAnalysis(files, userInfo, currentMode);
+      const result = await routeTongueAnalysis(files, userInfo, currentMode, userRole);
 
-      // Store hearing answers in the result state or user info for history if needed.
+      // Async Image Quality Analysis (Observation Layer) - Non-blocking
+      (async () => {
+        try {
+          if (files[0] && result.savedId && result.result_v2?.output_payload) {
+            const qualityPayload = await analyzeImageQuality(files[0]);
+
+            fetch('/api/analyze/update_v2', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                analysis_id: result.savedId,
+                v2_payload: result.result_v2.output_payload,
+                quality_payload: qualityPayload,
+                user_role: userRole,
+                img_blur_score: qualityPayload.blur_score,
+                img_brightness_mean: qualityPayload.brightness_mean,
+                img_saturation_mean: qualityPayload.saturation_mean,
+                quality_feedback_flag: !!qualityReason
+              })
+            }).catch(err => console.error("Failed to update quality_payload:", err));
+          }
+        } catch (err) {
+          console.warn("Quality assessment failed in background:", err);
+        }
+      })();
+
       if (userInfo) {
         userInfo.answers = { ...userInfo.answers, hearing: hearingAnswers };
       }
 
       setAnalysisResult(result);
+      updateStreak();
+
+      // Feature Flag check for History Mini
+      const isHistoryMiniEnabled = typeof window !== 'undefined' && localStorage.getItem('FF_HISTORY_MINI_V1') === '1';
+      if (isHistoryMiniEnabled) {
+        try {
+          const typeId = result.result_v2?.output_payload?.diagnosis?.top1_id || result.top3?.[0]?.id || null;
+          const conditionType = getConditionType(typeId);
+          const hash = conditionType.name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+          const score = 50 + (hash % 45); // Dummy score 50-95
+          pushHistoryMini({
+            score,
+            typeId: typeId || undefined,
+            typeLabel: conditionType.name,
+            top1PatternId: typeId || undefined,
+            quality_flag: !!qualityReason
+          });
+        } catch (e) {
+          console.error("Failed to push history_mini:", e);
+        }
+      }
+
+      // Always persist latest result for internal tools (Explain Tree) - Hardened v1
+      if (result.result_v2?.output_payload) {
+        saveLatestPayloadForDebug(result.result_v2.output_payload);
+      }
+
       setAppState(AppState.Results);
 
       if (userInfo) {
@@ -136,12 +320,54 @@ const App: React.FC = () => {
         saveLastUserInfo(userInfo).catch(err => console.error("Last User Info save failed:", err));
       }
 
+      // Feature Flag check for Research Mode (Strict DEV guard)
+      const isResearchModeEnabled = typeof window !== 'undefined' && localStorage.getItem('IS_RESEARCH_MODE') === 'true';
+      if (import.meta.env.DEV && isResearchModeEnabled && result.result_v2?.output_payload) {
+        const isAgreed = localStorage.getItem('RESEARCH_AGREED') === 'true';
+        if (isAgreed) {
+          const { getAnonymousUserId } = await import('./utils/anonymousId');
+          const anonId = getAnonymousUserId();
+          const payload = result.result_v2.output_payload;
+
+          const doResearchLog = async () => {
+            try {
+              // 1. Get Token securely
+              const tokenRes = await fetch('/api/token', { method: 'POST' });
+              if (!tokenRes.ok) return;
+              const { token } = await tokenRes.json();
+
+              // 2. Safe non-blocking fetch
+              await fetch('/api/research', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                  anonymous_user_id: anonId,
+                  top1_id: payload.diagnosis.top1_id,
+                  level: payload.guard.level,
+                  current_type_label: payload.guard.band,
+                  is_dummy: localStorage.getItem('DUMMY_TONGUE') === 'true',
+                  app_version: '1.2.1', // Match footer
+                  output_version: payload.output_version,
+                  payload: payload
+                })
+              });
+            } catch (err) {
+              console.error('Research logging failed silently:', err);
+            }
+          };
+          doResearchLog();
+        }
+      }
+
     } catch (error) {
       console.error("Analysis failed:", error);
       const errorMessage = error instanceof Error ? error.message : "不明なエラー";
       setAnalysisError(errorMessage);
     }
-  }, [uploadedImages, userInfo, analysisMode]);
+  }, [uploadedImages, userInfo, currentEffectivePlan]);
 
   const handleRestart = useCallback(() => {
     setAnalysisResult(null);
@@ -156,14 +382,19 @@ const App: React.FC = () => {
       case AppState.UserInfo:
         return <UserInfoScreen onNext={handleUserInfoSubmit} />;
       case AppState.Uploading:
-        return <UploadWizard onStartAnalysis={handleStartAnalysis} devMode={devMode} />;
+        return <UploadWizard
+          onStartAnalysis={handleStartAnalysis}
+          devMode={devMode}
+          disabled={showDevFlagBanner || (!import.meta.env.DEV && localStorage.getItem('IS_ADMIN') !== 'true')}
+          plan={currentEffectivePlan}
+        />;
       case AppState.Hearing:
         return <HearingScreen onNext={handleHearingNext} onBack={() => setAppState(AppState.Uploading)} />;
       case AppState.Analyzing:
         return (
           <AnalysisScreen
             error={analysisError}
-            onRetry={() => handleStartAnalysis(uploadedImages)}
+            onRetry={() => handleHearingNext(userInfo?.answers?.hearing || {})}
           />
         );
       case AppState.Results:
@@ -173,17 +404,28 @@ const App: React.FC = () => {
             onRestart={handleRestart}
             uploadedImages={uploadedImages}
             onOpenDictionary={handleOpenDictionary}
+            plan={currentEffectivePlan}
           />
         ) : null;
       case AppState.History:
         return <HistoryScreen onSelectHistory={handleSelectHistory} onBack={handleHistoryBack} />;
       case AppState.Dictionary:
         return <FindingsDictionaryScreen onBack={handleDictionaryBack} devMode={devMode} />;
+      case AppState.ImageQualityGate:
+        return (
+          <ImageQualityGateScreen
+            reason={qualityReason}
+            onRetry={() => setAppState(AppState.Uploading)}
+            onViewGuide={() => alert("現在ガイドを準備中です。")}
+          />
+        );
+      case AppState.AdminDashboard:
+        return <AdminDashboard onBack={() => setAppState(AppState.Uploading)} />;
       case AppState.DevSettings:
         return (
           <DevSettingsScreen
             onBack={() => {
-              setDevMode(isDevEnabled()); // Sync local state after returning
+              setDevMode(isDevEnabled());
               setAppState(AppState.Disclaimer);
             }}
           />
@@ -193,46 +435,81 @@ const App: React.FC = () => {
     }
   };
 
+  const isPro = currentEffectivePlan === AnalysisMode.Pro;
+
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col items-center p-4 sm:p-6 lg:p-8">
-      <header className="w-full max-w-4xl mb-6 flex items-center justify-between">
+    <div
+      className={`min-h-screen font-sans flex flex-col items-center transition-all duration-700 ${isPro ? 'text-white' : 'text-slate-800'
+        }`}
+      style={{
+        background: isPro
+          ? `linear-gradient(135deg, ${colors.pro.bgGradientStart}, ${colors.pro.bgGradientEnd})`
+          : colors.light.bg
+      }}
+    >
+      {showDevFlagBanner && (
+        <div className="w-full max-w-4xl mb-4 p-2 bg-red-600 text-white text-[10px] font-bold text-center rounded shadow-lg animate-pulse">
+          ⚠️ 開発用フラグを検出しました。安全のため自動消去しましたが、再読み込みを推奨します。
+        </div>
+      )}
+      <header className="w-full max-w-4xl mb-6 py-6 flex items-center justify-between px-4 sm:px-0">
         <div className="flex-1 text-center sm:text-left">
-          <h1 className="text-2xl sm:text-3xl font-bold text-blue-700 tracking-tight">舌診アシスタント2025</h1>
-          <p className="text-xs text-slate-500 hidden sm:block">Tongue Diagnosis Assistant {isDevEnabled() && <span className="text-orange-500 font-bold">[Dev Mode: {analysisMode === AnalysisMode.HeatCold ? '寒熱' : '通常'}]</span>}</p>
+          <h1 className={`text-2xl sm:text-3xl font-black tracking-tighter ${isPro ? 'text-blue-300' : ''}`} style={{ color: isPro ? undefined : colors.light.primary }}>
+            舌診アシスタント2025
+          </h1>
+          <div className="flex items-center space-x-2 mt-1">
+            <p className={`text-[10px] font-bold uppercase tracking-widest ${isPro ? 'text-blue-400/60' : 'text-slate-400'}`}>
+              セルフケアのための傾向分析・補助ツール {import.meta.env.DEV && <span className="text-orange-500 font-black">[DEV]</span>}
+            </p>
+          </div>
         </div>
 
-        {/* Buttons Group */}
-        {appState !== AppState.Disclaimer && (
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={handleHistoryClick}
-              className="flex flex-col items-center p-2 text-blue-600 bg-white border border-blue-100 rounded-lg hover:bg-blue-50 transition-colors shadow-sm"
-              title="履歴"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span className="text-[10px] font-bold mt-1">履歴</span>
-            </button>
-            <button
-              onClick={() => setIsSettingsOpen(true)}
-              className="flex flex-col items-center p-2 text-slate-500 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors shadow-sm"
-              title="設定"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-              <span className="text-[10px] font-bold mt-1">設定</span>
-            </button>
+        <div className="flex items-center space-x-3">
+          {/* Unified Plan Badge */}
+          <div className={`px-2 py-1 rounded-[4px] text-[10px] font-black uppercase tracking-wider border transition-all flex items-center space-x-1 ${isPro
+            ? (import.meta.env.DEV ? 'bg-[#0F1C2E] text-[#2E6F5E] border-[#2E6F5E] shadow-[0_0_15px_rgba(46,111,94,0.4)]' : 'bg-slate-800/50 text-white border-white/10 backdrop-blur-md')
+            : (import.meta.env.DEV ? 'bg-slate-200 text-slate-600 border-slate-300' : 'bg-slate-100 text-slate-600 border-slate-200 shadow-sm')
+            } ${import.meta.env.DEV ? 'scale-110' : ''}`}>
+            <span>PLAN: {isPro ? 'PRO' : 'LIGHT'}</span>
+            {import.meta.env.DEV && (
+              <>
+                {localStorage.getItem("FORCE_PRO") === "true" && <span className="bg-[#B84C3A] text-white px-1 rounded-[2px] ml-1 text-[8px]">TRIAL</span>}
+                {localStorage.getItem("DUMMY_TONGUE") === "true" && <span className="bg-red-600 text-white px-1 rounded-[2px] ml-1 text-[8px]">DUMMY</span>}
+              </>
+            )}
           </div>
-        )}
+
+          <StreakBadge className="hidden sm:inline-flex" />
+
+          {appState !== AppState.Disclaimer && (
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={handleHistoryClick}
+                className="flex flex-col items-center p-2 text-brand-primary bg-white border border-brand-primary/20 rounded-lg hover:bg-brand-primary/5 transition-colors shadow-sm"
+                title="履歴"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span className="text-[10px] font-bold mt-1">履歴</span>
+              </button>
+              <button
+                onClick={() => setIsSettingsOpen(true)}
+                className="flex flex-col items-center p-2 text-slate-500 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors shadow-sm"
+                title="設定"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <span className="text-[10px] font-bold mt-1">設定</span>
+              </button>
+            </div>
+          )}
+        </div>
       </header>
 
       <main className="w-full max-w-4xl z-10 flex-1 relative">
-        {isDevEnabled() && (
-          <div className="absolute -top-4 right-0 text-[10px] text-orange-500 font-mono bg-orange-100 px-2 py-1 rounded">DevMode: ON ({analysisMode === AnalysisMode.HeatCold ? 'Heat/Cold' : 'Std'})</div>
-        )}
         {renderContent()}
       </main>
 
@@ -247,9 +524,14 @@ const App: React.FC = () => {
 
       <footer className="w-full max-w-4xl mt-8 pb-4 text-center text-xs text-slate-500">
         <p>本アプリは医療的な診断、治療、または助言を提供するものではありません。健康上の問題については、必ず医師または他の適切な医療従事者にご相談ください。</p>
-        <p className="mt-2 opacity-50">v1.2.0 {devMode ? '(Development Build)' : ''}</p>
+        <p className="mt-2 opacity-50">v1.2.1 {import.meta.env.DEV ? '(Development Build)' : ''}</p>
       </footer>
-    </div>
+      <div className="fixed bottom-2 right-2 text-[10px] font-mono text-slate-500 bg-white/80 px-2 py-1 rounded border border-slate-200 shadow-sm z-50 pointer-events-none">
+        BUILD: 2026.03.02.01
+      </div>
+      <DevControlCenter />
+      <DebugPanel plan={currentEffectivePlan} />
+    </div >
   );
 };
 

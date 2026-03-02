@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Z-26 Explain Tree Sample (v1)</title>
+    <style>
+        body {
+            font-family: "Noto Sans JP", sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+            padding: 2rem;
+            max-width: 900px;
+            margin: auto;
+        }
+
+        .header {
+            background: #fff;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            border-left: 6px solid #1F3A5F;
+            margin-bottom: 2rem;
+        }
+
+        .caution {
+            color: #b91c1c;
+            font-size: 0.8rem;
+            font-weight: bold;
+            background: #fee2e2;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .node-item {
+            margin-left: 1.5rem;
+            border-left: 1px dashed #cbd5e1;
+            padding-left: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        details>summary {
+            cursor: pointer;
+            padding: 0.4rem;
+            border-radius: 0.3rem;
+            transition: background 0.2s;
+            list-style: none;
+            display: flex;
+            align-items: center;
+        }
+
+        details>summary:hover {
+            background: #f1f5f9;
+        }
+
+        details>summary::-webkit-details-marker {
+            display: none;
+        }
+
+        summary::before {
+            content: "▶";
+            font-size: 0.6rem;
+            margin-right: 0.5rem;
+            color: #94a3b8;
+            transform: rotate(0deg);
+            transition: transform 0.2s;
+        }
+
+        details[open]>summary::before {
+            transform: rotate(90deg);
+        }
+
+        .kind-tag {
+            font-size: 0.6rem;
+            color: #fff;
+            background: #64748b;
+            padding: 0.1rem 0.4rem;
+            border-radius: 0.2rem;
+            margin-right: 0.5rem;
+            font-weight: bold;
+        }
+
+        .chip {
+            font-size: 0.7rem;
+            color: #1F3A5F;
+            background: #dbeafe;
+            padding: 0.1rem 0.5rem;
+            border-radius: 1rem;
+            margin-left: 0.5rem;
+            border: 1px solid #bfdbfe;
+        }
+
+        .content {
+            padding: 0.5rem 0 0.5rem 1.5rem;
+        }
+
+        .summary {
+            color: #475569;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin: 0.5rem 0;
+        }
+
+        .kind-root {
+            border-left: none;
+            margin-left: 0;
+            padding-left: 0;
+        }
+
+        .kind-result {
+            background: #f0fdf4;
+            border-left: 2px solid #22c55e;
+            border-radius: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .kind-section {
+            font-size: 1.1rem;
+            border-left: 2px solid #1F3A5F;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1>🔍 説明ツリー構造 (Sample)</h1>
+        <p>内部解析プロセスの確認用レポート v1</p>
+        <div class="caution">
+            ⚠️ 本レポートは内部検証用であり、医療診断ではありません。また、CoreEngine.ts の算出ロジックは不変であり、本表示は観測値の再構成に基づくものです。
+        </div>
+    </div>
+
+    <details open class="node-item kind-root">
+        <summary><span class="kind-tag">ROOT</span><strong>分析結果サマリー</strong></summary>
+        <div class="content">
+            <p class="summary">現在の状況を論理的に分解したものです。</p>
+            <details open class="node-item kind-section">
+                <summary><span class="kind-tag">SECTION</span><strong>入力情報の要約</strong></summary>
+                <div class="content">
+                    <p class="summary">解析に使用したデータ指標です。</p>
+                    <details open class="node-item kind-fact">
+                        <summary><span class="kind-tag">FACT</span><strong>画像品質指標</strong> <span
+                                class="chip">撮影状況</span></summary>
+                        <div class="content">
+                            <p class="summary">良好な品質が維持されています。</p>
+                        </div>
+                    </details>
+                </div>
+            </details>
+            <details open class="node-item kind-result">
+                <summary><span class="kind-tag">RESULT</span><strong>最優先傾向: YIN_DEF</strong> <span
+                        class="chip">Primary</span></summary>
+                <div class="content">
+                    <p class="summary">最も関連性が高いと推定される状態分類です。</p>
+                </div>
+            </details>
+        </div>
+    </details>
+
+    <footer
+        style="margin-top: 4rem; text-align: center; color: #94a3b8; font-size: 0.8rem; border-top: 1px solid #e2e8f0; padding-top: 1rem;">
+        &copy; 2026 Z-26 Project. Generated for internal audit only.
+    </footer>
+</body>
+
+</html>

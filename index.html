@@ -20,14 +20,29 @@
           fontFamily: {
             sans: ['"Noto Sans JP"', 'sans-serif'],
           },
+          colors: {
+            brand: {
+              primary: 'var(--c-light-primary)',
+              secondary: 'var(--c-light-secondary)',
+            },
+            pro: {
+              secondary: 'var(--c-pro-secondary)',
+              cta: 'var(--c-pro-cta)',
+            }
+          },
           animation: {
             'fade-in': 'fadeIn 0.5s ease-out forwards',
             'fade-in-fast': 'fadeIn 0.3s ease-out forwards',
+            'bounce-subtle': 'bounceSubtle 2s infinite ease-in-out',
           },
           keyframes: {
             fadeIn: {
               '0%': { opacity: 0, transform: 'translateY(10px)' },
               '100%': { opacity: 1, transform: 'translateY(0)' },
+            },
+            bounceSubtle: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-4px)' },
             }
           }
         }

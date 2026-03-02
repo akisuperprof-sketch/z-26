@@ -1,0 +1,94 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`SSOT Golden Regression Tests > should match golden snapshot for Case_01 (Yin Deficiency (Strong) - Based on Dummy LV4) 1`] = `
+{
+  "diagnosis": {
+    "top1_id": "P_LI_FLUID_DEF",
+    "top2_id": "P_KIDNEY_YIN_DEF",
+    "top3_ids": [
+      "P_LI_FLUID_DEF",
+      "P_KIDNEY_YIN_DEF",
+      "P_LI_QI_DEF",
+    ],
+  },
+  "display": {
+    "show": {
+      "show_pattern_name": true,
+      "show_top3_list": true,
+    },
+    "template_key": "standard_pro",
+  },
+  "guard": {
+    "band": "軽い傾向",
+    "level": 2,
+    "mix": "混合傾向",
+  },
+  "output_version": "Z26_P2_v1",
+  "stats": {
+    "answered": 13,
+    "total": 20,
+  },
+}
+`;
+
+exports[`SSOT Golden Regression Tests > should match golden snapshot for Case_02 (Qi Stagnation (Liver Qi Stagnation)) 1`] = `
+{
+  "diagnosis": {
+    "top1_id": "P_LIVER_QI_STAG",
+    "top2_id": "P_HEART_BLOOD_STASIS",
+    "top3_ids": [
+      "P_LIVER_QI_STAG",
+      "P_HEART_BLOOD_STASIS",
+      "P_COLD_STAGN_LIVER",
+    ],
+  },
+  "display": {
+    "show": {
+      "show_pattern_name": false,
+      "show_top3_list": false,
+    },
+    "template_key": "neutral_pro",
+  },
+  "guard": {
+    "band": "偏りなし",
+    "level": 1,
+    "mix": "通常",
+  },
+  "output_version": "Z26_P2_v1",
+  "stats": {
+    "answered": 4,
+    "total": 20,
+  },
+}
+`;
+
+exports[`SSOT Golden Regression Tests > should match golden snapshot for Case_03 (Neutral / Balanced State) 1`] = `
+{
+  "diagnosis": {
+    "top1_id": "P_LIVER_QI_STAG",
+    "top2_id": "P_STOMACH_COLD",
+    "top3_ids": [
+      "P_LIVER_QI_STAG",
+      "P_STOMACH_COLD",
+      "P_LUNG_QI_DEF",
+    ],
+  },
+  "display": {
+    "show": {
+      "show_pattern_name": false,
+      "show_top3_list": false,
+    },
+    "template_key": "neutral_pro",
+  },
+  "guard": {
+    "band": "偏りなし",
+    "level": 1,
+    "mix": "通常",
+  },
+  "output_version": "Z26_P2_v1",
+  "stats": {
+    "answered": 6,
+    "total": 20,
+  },
+}
+`;

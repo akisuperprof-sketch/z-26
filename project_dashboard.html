@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Z-26 統合ダッシュボード | 舌診AIプロジェクト</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&display=swap"
+        rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Noto Sans JP', 'sans-serif'],
+                    },
+                    colors: {
+                        // Pro 基軸カラー
+                        pro: {
+                            bgStart: '#0F1C2E',
+                            bgEnd: '#1C2A39',
+                            sub: '#2E6F5E',
+                            cta: '#B84C3A',
+                        },
+                        // Light カラー
+                        light: {
+                            main: '#1F3A5F',
+                            sub: '#6FC3B2',
+                        },
+                        // Academic カラー
+                        academic: {
+                            main: '#2A2F36',
+                            sub: '#3C4A59',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #F8FAFC;
+            background-image: radial-gradient(#E2E8F0 0.5px, transparent 0.5px);
+            background-size: 24px 24px;
+            color: #1E293B;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+
+        .tab-btn.active {
+            border-bottom: 3px solid #2E6F5E;
+            color: #2E6F5E;
+        }
+
+        .section-card {
+            border-left: 4px solid #2E6F5E;
+            background: white;
+        }
+
+        .cta-btn {
+            background-color: #B84C3A;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .cta-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .plan-item-bg {
+            background: #F1F5F9;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen text-slate-800">
+
+    <!-- ヘッダー -->
+    <header class="glass sticky top-0 z-50 px-6 py-4 flex justify-between items-center border-b border-slate-200">
+        <div class="flex items-center gap-3">
+            <div class="bg-pro-sub w-8 h-8 rounded flex items-center justify-center">
+                <i class="fa-solid fa-microscope text-white text-sm"></i>
+            </div>
+            <h1 class="text-xl font-black tracking-tighter text-slate-900">Z-26 <span class="text-pro-sub">NEXUS</span>
+            </h1>
+        </div>
+        <div class="text-[10px] font-bold text-slate-400 flex items-center gap-4">
+            <span>同期状態: <span class="text-pro-sub">正常</span></span>
+            <span>更新: 2026.03.01.2355</span>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-6 py-10">
+
+        <div class="mb-12">
+            <h2 class="text-4xl font-black mb-4 text-slate-900">事業思想・技術統合基地</h2>
+            <p class="text-slate-600 leading-relaxed max-w-3xl">
+                舌診AIアプリ「Z-26」の羅針盤。事業思想（Philosophy）、収支戦略（Business）、開発工程（Engineering）をリアルタイムに同期し、
+                情報の抜け漏れなくプロジェクトを完遂するための司令塔。
+            </p>
+        </div>
+
+        <div class="flex gap-8 mb-10 border-b border-slate-200 no-scrollbar overflow-x-auto">
+            <button onclick="showTab('business')" id="btn-business"
+                class="tab-btn active pb-4 text-sm font-bold whitespace-nowrap">1. 事業思想・原則</button>
+            <button onclick="showTab('finance')" id="btn-finance"
+                class="tab-btn pb-4 text-sm font-bold text-slate-400 whitespace-nowrap">2. プラン・価格戦略</button>
+            <button onclick="showTab('dev')" id="btn-dev"
+                class="tab-btn pb-4 text-sm font-bold text-slate-400 whitespace-nowrap">3. 技術設計・進捗</button>
+            <button onclick="showTab('brand')" id="btn-brand"
+                class="tab-btn pb-4 text-sm font-bold text-slate-400 whitespace-nowrap">4. ブランド・KPI</button>
+        </div>
+
+        <!-- セクション1: 事業思想 -->
+        <div id="sec-business" class="tab-content space-y-10">
+            <div class="glass p-8 rounded-2xl section-card">
+                <h3 class="text-2xl font-black mb-6 flex items-center gap-3 text-slate-900">
+                    <i class="fa-solid fa-star text-pro-sub"></i>
+                    最上位目的（不変）
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="p-4 bg-slate-50 rounded-lg border border-slate-100">
+                        <span class="text-pro-sub font-black text-xs">優先度 01</span>
+                        <h4 class="text-lg font-bold mt-1 text-slate-900">舌診の社会的普及</h4>
+                        <p class="text-xs text-slate-500 mt-2">「誰でも自分の体質を知れる」世界の構築。日常的なセルフケアのスタンダード化。</p>
+                    </div>
+                    <div class="p-4 bg-slate-50 rounded-lg border border-slate-100">
+                        <span class="text-pro-sub font-black text-xs">優先度 02</span>
+                        <h4 class="text-lg font-bold mt-1 text-slate-900">研究データの蓄積と価値化</h4>
+                        <p class="text-xs text-slate-500 mt-2">東洋医学の証判定をデータで証明。AI＋伝統医学の最高峰を目指す。</p>
+                    </div>
+                    <div class="p-4 bg-slate-50 rounded-lg border border-slate-100">
+                        <span class="text-pro-sub font-black text-xs">優先度 03</span>
+                        <h4 class="text-lg font-bold mt-1 text-slate-900">専門家市場の確立</h4>
+                        <p class="text-xs text-slate-500 mt-2">臨床の質を上げる補助ツールの浸透。鍼灸師・漢方家のパートナーとしての地位。</p>
+                    </div>
+                    <div class="p-4 border border-dashed border-slate-200 rounded-lg">
+                        <span class="text-slate-400 font-black text-xs">禁忌</span>
+                        <h4 class="text-lg font-bold mt-1 text-slate-400">短期利益の最大化</h4>
+                        <p class="text-xs text-slate-400 mt-2">長期シェアとデータ蓄積を優先し、目先の売上のために拡大を急がない。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass p-8 rounded-2xl section-card">
+                <h3 class="text-2xl font-black mb-6 text-slate-900">ロードマップ（フェーズ定義）</h3>
+                <div class="relative border-l-2 border-pro-sub/30 ml-4 pl-8 space-y-10">
+                    <div>
+                        <div class="absolute -left-[9px] w-4 h-4 rounded-full bg-pro-sub"></div>
+                        <h4 class="text-xl font-bold text-slate-900">Phase 1：拡散特化（現在のフェーズ）</h4>
+                        <ul class="text-sm text-slate-600 mt-2 space-y-1">
+                            <li>・登録数最大化、利用習慣化</li>
+                            <li>・学生1000人テスト実施、ブランド認知形成</li>
+                            <li>・「価格は拡散優先」将来の値上げを前提とした設計</li>
+                        </ul>
+                    </div>
+                    <div class="opacity-60">
+                        <div class="absolute -left-[9px] w-4 h-4 rounded-full bg-slate-300"></div>
+                        <h4 class="text-xl font-bold text-slate-500">Phase 2：信頼拡大</h4>
+                        <p class="text-sm text-slate-500 mt-2">信頼構築後の価格調整、法人（Pro Clinic）拡張開始。</p>
+                    </div>
+                    <div class="opacity-60">
+                        <div class="absolute -left-[9px] w-4 h-4 rounded-full bg-slate-300"></div>
+                        <h4 class="text-xl font-bold text-slate-500">Phase 3：データ価値化</h4>
+                        <p class="text-sm text-slate-500 mt-2">蓄積データを武器にした学術契約（Academic）の本格化。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- セクション2: プラン・価格 -->
+        <div id="sec-finance" class="tab-content hidden space-y-10">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Light -->
+                <div class="glass p-6 rounded-2xl border-t-4 border-light-sub">
+                    <span class="text-[10px] font-black tracking-widest text-slate-400">GENERAL USE</span>
+                    <h3 class="text-2xl font-black mt-2 text-slate-800">Light</h3>
+                    <p class="text-3xl font-black my-4 text-slate-900">月 480円</p>
+                    <ul class="text-xs text-slate-600 space-y-2">
+                        <li>・月3回まで無料</li>
+                        <li>・基本解析のみ</li>
+                        <li>・拡散と継続習慣化を目的</li>
+                    </ul>
+                </div>
+                <!-- Pro -->
+                <div class="glass p-6 rounded-2xl border-t-4 border-pro-cta bg-white">
+                    <span class="text-[10px] font-black tracking-widest text-pro-cta">PERSONAL PRO</span>
+                    <h3 class="text-2xl font-black mt-2 text-slate-800">Pro Personal</h3>
+                    <p class="text-3xl font-black my-4 text-slate-900">月 980円</p>
+                    <ul class="text-xs text-slate-700 space-y-2">
+                        <li>・機能差で価値を出す</li>
+                        <li>・全履歴、詳細解析、変化グラフ</li>
+                        <li>・詳細な証判定の提供</li>
+                    </ul>
+                </div>
+                <!-- Student -->
+                <div class="glass p-6 rounded-2xl border-t-4 border-pro-sub/50">
+                    <span class="text-[10px] font-black tracking-widest text-slate-400">ACADEMIC PROGRAM</span>
+                    <h3 class="text-2xl font-black mt-2 text-slate-800">Student</h3>
+                    <p class="text-3xl font-black my-4 text-slate-900">無料 <span class="text-xs font-normal opacity-50">/
+                            3ヶ月</span></p>
+                    <ul class="text-xs text-slate-600 space-y-2">
+                        <li>・研究データ蓄積と未来のファン層育成</li>
+                        <li>・Light無制限 ＋ Pro体験2回</li>
+                        <li>・終了後に限定Pro割（480円）あり</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="glass p-8 rounded-2xl section-card">
+                <h3 class="text-2xl font-black mb-6">将来拡張（Phase 2以降）</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <h4 class="font-bold text-pro-sub">Pro Clinic (法人)</h4>
+                        <p class="text-xl font-black mt-1">月 1.5万 〜 3万円想定</p>
+                        <p class="text-xs text-slate-500 mt-2">臨床家向け管理ツール。患者ごとの経過観察と推論補助。</p>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-pro-sub">Academic (大学)</h4>
+                        <p class="text-xl font-black mt-1">年 100万円 〜</p>
+                        <p class="text-xs text-slate-500 mt-2">大学・研究機関契約。大規模な匿名化データへのアクセス。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass p-6 rounded-2xl border border-slate-200 bg-slate-50 text-center">
+                <h3 class="text-lg font-bold text-slate-800">価格哲学</h3>
+                <p class="text-sm text-slate-600 mt-2 italic">「Phase1は低価格で市場占有を、Phase2で信頼を構築した後に適正化を、Phase3でB2Bへ」</p>
+            </div>
+        </div>
+
+        <!-- セクション3: 技術・進捗 -->
+        <div id="sec-dev" class="tab-content hidden space-y-10">
+            <div class="glass p-8 rounded-2xl section-card">
+                <h3 class="text-2xl font-black mb-6 text-slate-900">権限・技術設計（SSoT）</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="p-4 bg-slate-50 border border-slate-100 rounded text-center">
+                        <div class="text-[10px] text-slate-400 font-bold mb-1">ROLE</div>
+                        <div class="font-black text-pro-sub">LIGHT</div>
+                    </div>
+                    <div class="p-4 bg-slate-50 border border-slate-100 rounded text-center">
+                        <div class="text-[10px] text-slate-400 font-bold mb-1">ROLE</div>
+                        <div class="font-black text-pro-sub">PRO</div>
+                    </div>
+                    <div class="p-4 bg-slate-50 border border-slate-100 rounded text-center">
+                        <div class="text-[10px] text-slate-400 font-bold mb-1">ROLE</div>
+                        <div class="font-black text-pro-sub">STUDENT</div>
+                    </div>
+                    <div class="p-4 bg-slate-50 border border-slate-100 rounded text-center">
+                        <div class="text-[10px] text-slate-400 font-bold mb-1">ROLE</div>
+                        <div class="font-black text-pro-sub">ACADEMIC</div>
+                    </div>
+                </div>
+                <div class="mt-6 p-4 bg-slate-50 border border-slate-100 rounded-lg">
+                    <h4 class="text-sm font-bold text-slate-700">制御フラグ設計</h4>
+                    <p class="text-xs text-slate-500 mt-1 font-mono">proTrialCount / studentExpireDate /
+                        academicContractId</p>
+                    <p class="text-[10px] text-slate-500 mt-2">回数管理ではなく、権限管理（Role/Flag）による一元制御を徹底。</p>
+                </div>
+            </div>
+
+            <div class="glass p-8 rounded-2xl section-card">
+                <h3 class="text-2xl font-black mb-6">解析ロジック & 工程（SSoT）</h3>
+
+                <!-- Common Flow -->
+                <div class="mb-8 overflow-x-auto no-scrollbar">
+                    <div class="flex items-center gap-4 min-w-[600px] mb-4">
+                        <div class="flex-1 p-3 bg-white/5 rounded text-center border border-white/10">
+                            <div class="text-[8px] text-slate-500 font-bold mb-1">STEP 01</div>
+                            <div class="text-xs font-black">困りごと<br><span
+                                    class="text-[8px] opacity-50 font-normal">(自由入力)</span></div>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-slate-600"></i>
+                        <div class="flex-1 p-3 bg-white/5 rounded text-center border border-white/10">
+                            <div class="text-[8px] text-slate-500 font-bold mb-1">STEP 02</div>
+                            <div class="text-xs font-black">舌撮影<br><span
+                                    class="text-[8px] opacity-50 font-normal">(ガイド付)</span></div>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-slate-600"></i>
+                        <div class="flex-1 p-3 bg-white/5 rounded text-center border border-white/10">
+                            <div class="text-[8px] text-slate-500 font-bold mb-1">STEP 03</div>
+                            <div class="text-xs font-black">ヒアリング<br><span
+                                    class="text-[8px] opacity-50 font-normal">(段階的)</span></div>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-slate-600"></i>
+                        <div class="flex-1 p-3 bg-white/5 rounded text-center border border-white/10">
+                            <div class="text-[8px] text-slate-500 font-bold mb-1">STEP 04</div>
+                            <div class="text-xs font-black">結果出力<br><span
+                                    class="text-[8px] opacity-50 font-normal">(AI判定)</span></div>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-slate-600"></i>
+                        <div class="flex-1 p-3 bg-white/5 rounded text-center border border-white/10">
+                            <div class="text-[8px] text-slate-500 font-bold mb-1">STEP 05</div>
+                            <div class="text-xs font-black">深掘り<br><span
+                                    class="text-[8px] opacity-50 font-normal">(プラン別解釈)</span></div>
+                        </div>
+                    </div>
+                    <p class="text-[10px] text-slate-500 italic">※ プランが上がるごとに、診断の次元が拡張される「階層型診断構造」を採用。</p>
+                </div>
+
+                <!-- Plan-specific Details -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
+                    <div class="p-4 bg-white/5 rounded-lg border-t-2 border-light-sub">
+                        <h4 class="text-xs font-black text-light-sub mb-2">Lite (L)：横軸重視</h4>
+                        <div class="text-[10px] space-y-2">
+                            <p class="font-bold">ヒアリング (6項目)</p>
+                            <p class="text-slate-500 leading-tight">年齢/性別/冷え/のぼせ/疲れ/食欲</p>
+                            <p class="text-slate-400">解析：寒熱スペクトラム</p>
+                        </div>
+                    </div>
+                    <div class="p-4 bg-white/5 rounded-lg border-t-2 border-pro-sub">
+                        <h4 class="text-xs font-black text-pro-sub mb-2">Pro (P)：4象限判定</h4>
+                        <div class="text-[10px] space-y-2">
+                            <p class="font-bold">ヒアリング (15項目)</p>
+                            <p class="text-slate-500 leading-tight">L項目 + 動悸/咳/胸重感/腰だるさ/むくみ/イライラ/下痢/不眠/頻尿</p>
+                            <p class="text-slate-400">解析：寒熱×虚実マトリクス</p>
+                        </div>
+                    </div>
+                    <div class="p-4 bg-white/5 rounded-lg border-t-2 border-academic-sub">
+                        <h4 class="text-xs font-black text-academic-sub mb-2">Academic (A)：立体構造</h4>
+                        <div class="text-[10px] space-y-2">
+                            <p class="font-bold">ヒアリング (25項目)</p>
+                            <p class="text-slate-500 leading-tight">L+P項目 + 五行×五臓フル構成 (皮膚/喉/情緒/便秘等)</p>
+                            <p class="text-slate-400">解析：寒熱虚実×五行（アトラス搭載）</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-10">
+                    <h4 class="text-sm font-bold text-slate-500 mb-4 uppercase tracking-[0.2em] text-center">寒熱 × 虚実
+                        マトリクス定義</h4>
+                    <div class="grid grid-cols-2 gap-4 max-w-2xl mx-auto">
+                        <!-- 実寒 -->
+                        <div class="p-3 bg-blue-50 border border-blue-100 rounded">
+                            <div class="text-blue-700 font-black text-center mb-2">実寒</div>
+                            <ul class="text-[8px] text-slate-600 space-y-1">
+                                <li>・質：淡白〜青紫</li>
+                                <li>・苔：厚 白苔(黒・湿)</li>
+                                <li>・形：老 (寒＜熱)</li>
+                            </ul>
+                        </div>
+                        <!-- 実熱 -->
+                        <div class="p-3 bg-red-50 border border-red-100 rounded">
+                            <div class="text-red-700 font-black text-center mb-2">実熱</div>
+                            <ul class="text-[8px] text-slate-600 space-y-1">
+                                <li>・質：紅(絳)</li>
+                                <li>・苔：厚 黄苔(黒・乾)</li>
+                                <li>・液：乾燥</li>
+                            </ul>
+                        </div>
+                        <!-- 虚寒 -->
+                        <div class="p-3 bg-blue-50/50 border border-blue-100/50 rounded">
+                            <div class="text-blue-600 font-black text-center mb-2">虚寒</div>
+                            <ul class="text-[8px] text-slate-600 space-y-1">
+                                <li>・質：淡白〜青紫</li>
+                                <li>・苔：白苔(黒苔)</li>
+                                <li>・形：胖嫩(歯痕)</li>
+                            </ul>
+                        </div>
+                        <!-- 虚熱 -->
+                        <div class="p-3 bg-red-50/50 border border-red-100/50 rounded">
+                            <div class="text-red-600 font-black text-center mb-2">虚熱</div>
+                            <ul class="text-[8px] text-slate-600 space-y-1">
+                                <li>・質：紅(絳)</li>
+                                <li>・苔：無〜少(白〜黄)</li>
+                                <li>・液：乾燥</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col items-center">
+                    <div class="relative w-64 h-64 border-2 border-slate-200 bg-white">
+                        <div class="absolute inset-x-0 top-1/2 border-t border-slate-200"></div>
+                        <div class="absolute inset-y-0 left-1/2 border-l border-slate-200"></div>
+                        <div class="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] font-bold text-slate-400">実
+                            (Excess)</div>
+                        <div class="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[10px] font-bold text-slate-400">虚
+                            (Deficiency)
+                        </div>
+                        <div class="absolute top-1/2 -left-8 -translate-y-1/2 text-[10px] font-bold text-blue-500">寒
+                        </div>
+                        <div class="absolute top-1/2 -right-8 -translate-y-1/2 text-[10px] font-bold text-red-500">熱
+                        </div>
+                        <div
+                            class="absolute top-1/4 right-1/4 w-3 h-3 bg-pro-cta rounded-full shadow-[0_0_10px_#B84C3A]">
+                        </div>
+                    </div>
+                    <p class="text-[10px] text-slate-500 mt-10 text-center max-w-sm">
+                        舌の色（色彩）× ヒアリング（問診）をベクトル合成。<br>
+                        中心（Normal）からの「偏差」を特定し、適合する「証」をTop3で提示する。
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- セクション4: ブランド・KPI -->
+        <div id="sec-brand" class="tab-content hidden space-y-10">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="glass p-8 rounded-2xl section-card border-l-pro-cta">
+                    <h3 class="text-xl font-black mb-6">ブランド原則（固定）</h3>
+                    <ul class="space-y-4 text-sm font-medium">
+                        <li class="flex items-start gap-3">
+                            <i class="fa-solid fa-circle-exclamation text-pro-cta mt-1"></i>
+                            <span>医療断定表現は厳禁。「傾向分析」等に統一。</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <i class="fa-solid fa-camera text-pro-cta mt-1"></i>
+                            <span>舌の色再現性を至上命題とする。</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <i class="fa-solid fa-font text-pro-cta mt-1"></i>
+                            <span>フォントは Noto Sans JP で統一。</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="glass p-8 rounded-2xl section-card border-l-pro-sub">
+                    <h3 class="text-xl font-black mb-6 text-slate-800">KPI 優先順位</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between text-[10px] font-bold mb-1 text-slate-500"><span>1.
+                                    登録数</span><span class="text-pro-sub">P0</span></div>
+                            <div class="h-1 bg-slate-100 rounded-full overflow-hidden">
+                                <div class="w-[90%] h-full bg-pro-sub"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-[10px] font-bold mb-1 text-slate-500"><span>2.
+                                    7日継続率</span><span class="text-pro-sub">P1</span></div>
+                            <div class="h-1 bg-slate-100 rounded-full overflow-hidden">
+                                <div class="w-[70%] h-full bg-pro-sub"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-[10px] font-bold mb-1 text-slate-500"><span>3.
+                                    Pro体験クリック率</span><span class="text-pro-sub">P2</span></div>
+                            <div class="h-1 bg-slate-100 rounded-full overflow-hidden">
+                                <div class="w-[40%] h-full bg-pro-sub"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass p-8 rounded-2xl">
+                <h3 class="text-xl font-black mb-6 text-slate-900">ブランドカラー設計</h3>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="p-4 rounded-xl border border-slate-200">
+                        <h4 class="font-bold mb-3 text-slate-800">Light (拡散)</h4>
+                        <div class="flex gap-2">
+                            <div
+                                class="w-12 h-12 bg-light-main rounded flex items-center justify-center text-[8px] text-white">
+                                #1F3A5F</div>
+                            <div
+                                class="w-12 h-12 bg-light-sub rounded flex items-center justify-center text-[8px] text-white">
+                                #6FC3B2</div>
+                        </div>
+                        <p class="text-[10px] text-slate-500 mt-3">印象：やわらかい医療、日常ケア。<br>背景：白多め。</p>
+                    </div>
+                    <div class="p-4 rounded-xl border border-pro-sub/30 bg-pro-sub/5">
+                        <h4 class="font-bold mb-3 text-slate-800">Pro (基軸)</h4>
+                        <div class="flex gap-2">
+                            <div
+                                class="w-12 h-12 bg-pro-bgStart rounded flex items-center justify-center text-[8px] text-white">
+                                #0F1C2E</div>
+                            <div
+                                class="w-12 h-12 bg-pro-sub rounded flex items-center justify-center text-[8px] text-white">
+                                #2E6F5E</div>
+                            <div
+                                class="w-12 h-12 bg-pro-cta rounded flex items-center justify-center text-[8px] text-white">
+                                #B84C3A</div>
+                        </div>
+                        <p class="text-[10px] text-slate-600 mt-3">印象：臨床家、精度、信頼。<br>背景：濃紺グラデーション。</p>
+                    </div>
+                    <div class="p-4 rounded-xl border border-slate-200">
+                        <h4 class="font-bold mb-3 text-slate-800">Academic (機関)</h4>
+                        <div class="flex gap-2">
+                            <div
+                                class="w-12 h-12 bg-academic-main rounded flex items-center justify-center text-[8px] text-white">
+                                #2A2F36</div>
+                            <div
+                                class="w-12 h-12 bg-academic-sub rounded flex items-center justify-center text-[8px] text-white">
+                                #3C4A59</div>
+                        </div>
+                        <p class="text-[10px] text-slate-500 mt-3">印象：研究機関、冷静、データ。<br>背景：チャコールグレー。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="max-w-6xl mx-auto px-6 py-10 opacity-60">
+        <div class="flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+            <span>&copy; 2026 Z-26 Project Integrated Command Center</span>
+            <span>Authored by Antigravity v2.0 - Non-Destructive Update</span>
+        </div>
+    </footer>
+
+    <script>
+        function showTab(tabId) {
+            // 全タブコンテンツを隠す
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            // 全ボタンを非活性化
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active', 'text-pro-sub'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.add('text-slate-500'));
+
+            // 対象タブを表示
+            document.getElementById('sec-' + tabId).classList.remove('hidden');
+            // 対象ボタンを活性化
+            const activeBtn = document.getElementById('btn-' + tabId);
+            activeBtn.classList.add('active', 'text-pro-sub');
+            activeBtn.classList.remove('text-slate-500');
+
+            // スムーズスクロールアップ
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+
+</html>

@@ -9,7 +9,7 @@ const scale = [
   { label: "なし", value: 0 },
   { label: "あり", value: 1 },
   { label: "とてもあり", value: 2 },
-  { label: "わからない", value: null }
+  { label: "わからない", value: 3 }
 ];
 
 export const HEARING_QUESTIONS: Question[] = [
@@ -35,10 +35,10 @@ export const HEARING_QUESTIONS: Question[] = [
   { id: "Q20", text: "寝汗が出る／ほてりがある" }
 ];
 
-interface HearingSliderProps {
+export interface HearingSliderProps {
   question: Question;
-  value: number | null;
-  onChange: (id: string, value: number | null) => void;
+  value: number | undefined;
+  onChange: (id: string, value: number) => void;
 }
 
 export const HearingSlider: React.FC<HearingSliderProps> = ({ question, value, onChange }) => {
@@ -52,11 +52,10 @@ export const HearingSlider: React.FC<HearingSliderProps> = ({ question, value, o
             <button
               key={opt.label}
               onClick={() => onChange(question.id, opt.value)}
-              className={`flex-1 py-2 text-xs rounded-lg transition-colors ${
-                isSelected 
-                  ? 'bg-blue-600 text-white font-bold shadow-md' 
+              className={`flex-1 py-2 text-xs rounded-lg transition-colors ${isSelected
+                  ? 'bg-blue-600 text-white font-bold shadow-md'
                   : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200'
-              }`}
+                }`}
             >
               {opt.label}
             </button>

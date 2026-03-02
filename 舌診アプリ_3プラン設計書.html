@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>舌診アプリ 3プラン設計書 | L/P/Aモデル完全構造案</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;700;900&family=Outfit:wght@300;600;800&display=swap"
+        rel="stylesheet">
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --primary: #2c5aa0;
+            --secondary: #667eea;
+            --accent: #764ba2;
+            --lite: #4ade80;
+            --pro: #3b82f6;
+            --academic: #8b5cf6;
+            --bg-light: #f8f9fa;
+            --text-dark: #1e293b;
+            --border-color: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            line-height: 1.8;
+            color: var(--text-dark);
+            background: #f0f2f5;
+            padding-top: 60px;
+        }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: center;
+            border-bottom: 1px solid var(--border-color);
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .nav-tab {
+            padding: 15px 20px;
+            color: #64748b;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.85rem;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .nav-tab:hover {
+            color: var(--primary);
+            background: rgba(0, 0, 0, 0.02);
+        }
+
+        .nav-tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--accent);
+        }
+
+        .btn-screenshot {
+            margin-left: 20px;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            border: none;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            align-self: center;
+        }
+
+        .btn-screenshot:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-screenshot:active {
+            transform: scale(0.95);
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 60px 40px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+
+        .main-title {
+            font-size: 2.8rem;
+            font-weight: 900;
+            color: var(--primary);
+            letter-spacing: -0.02em;
+            margin-bottom: 10px;
+        }
+
+        .sub-title {
+            font-size: 1.4rem;
+            color: #64748b;
+            font-weight: 400;
+        }
+
+        .section {
+            background: white;
+            border-radius: 24px;
+            padding: 60px;
+            margin-bottom: 60px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--border-color);
+        }
+
+        h2 {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+        }
+
+        h2::before {
+            content: '';
+            display: inline-block;
+            width: 8px;
+            height: 32px;
+            background: var(--accent);
+            margin-right: 15px;
+            border-radius: 4px;
+        }
+
+        .flow-container {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 15px;
+            margin: 40px 0;
+            text-align: center;
+        }
+
+        .flow-item {
+            background: var(--bg-light);
+            padding: 20px 10px;
+            border-radius: 12px;
+            font-weight: 700;
+            position: relative;
+            border: 1px solid var(--border-color);
+        }
+
+        .flow-item:not(:last-child)::after {
+            content: '→';
+            position: absolute;
+            right: -12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #cbd5e1;
+            font-size: 1.2rem;
+        }
+
+        /* Plan Cards */
+        .plan-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .plan-badge {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 800;
+            width: 70px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 18px;
+            color: white;
+            margin-right: 25px;
+        }
+
+        .badge-lite {
+            background: var(--lite);
+        }
+
+        .badge-pro {
+            background: var(--pro);
+        }
+
+        .badge-academic {
+            background: var(--academic);
+        }
+
+        .plan-title {
+            font-size: 1.8rem;
+            font-weight: 900;
+        }
+
+        .plan-info {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 40px;
+        }
+
+        .card {
+            background: var(--bg-light);
+            padding: 30px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+        }
+
+        h3 svg {
+            margin-right: 10px;
+        }
+
+        .list-items {
+            list-style: none;
+        }
+
+        .list-items li {
+            padding: 8px 0;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.95rem;
+        }
+
+        .list-items li:last-child {
+            border-bottom: none;
+        }
+
+        .num-circle {
+            background: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-right: 10px;
+            border: 1px solid #cbd5e1;
+        }
+
+        .matrix-visual {
+            background: white;
+            border: 2px dashed #cbd5e1;
+            border-radius: 12px;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: #94a3b8;
+            position: relative;
+        }
+
+        .matrix-label {
+            position: absolute;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.8rem;
+            color: var(--text-dark);
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+        }
+
+        .highlight-box h2 {
+            color: white;
+            justify-content: center;
+        }
+
+        .highlight-box h2::before {
+            display: none;
+        }
+
+        .core-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .core-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+        }
+
+        .core-item .label {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 800;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        @media print {
+            .nav-tabs {
+                display: none;
+            }
+
+            body {
+                padding-top: 0;
+                background: white;
+            }
+
+            .container {
+                padding: 20px;
+            }
+
+            .section {
+                box-shadow: none;
+                border: 1px solid #eee;
+                padding: 40px;
+                margin-bottom: 30px;
+            }
+
+            #lite {
+                page-break-after: always;
+            }
+
+            .main-title {
+                font-size: 2.2rem;
+            }
+
+            .section h2 {
+                font-size: 1.6rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="nav-tabs no-print">
+        <a href="ZET-FIRST_JACT打ち合わせ資料_FoundingMeeting.html" class="nav-tab">プレゼン資料</a>
+        <a href="臨床舌診研究学会_設立計画書_完全版.html" class="nav-tab">設立計画書 (完全版)</a>
+        <a href="事業計画書_完成版.html" class="nav-tab">事業計画書 (Zetsu-Scan)</a>
+        <a href="#" class="nav-tab active">アプリ3プラン設計</a>
+        <button class="btn-screenshot" onclick="takeScreenshot()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                <circle cx="12" cy="13" r="4" />
+            </svg>
+            画像として保存
+        </button>
+    </nav>
+
+    <div class="container">
+        <header>
+            <div class="sub-title">L / P / A モデル完全構造案</div>
+            <h1 class="main-title">舌診アプリ 3プラン設計書</h1>
+        </header>
+
+        <section class="section">
+            <h2>全体共通フロー</h2>
+            <p>全プラン共通の基本体験工程です。上位プランになるほど、その後の解析精度と深掘りの密度が向上します。</p>
+            <div class="flow-container">
+                <div class="flow-item">1. 困りごと<br><small>(自由入力)</small></div>
+                <div class="flow-item">2. 舌撮影<br><small>(ガイド付)</small></div>
+                <div class="flow-item">3. ヒアリング<br><small>(段階的)</small></div>
+                <div class="flow-item">4. 結果出力<br><small>(AI判定)</small></div>
+                <div class="flow-item">5. 深掘り<br><small>(プラン別解釈)</small></div>
+            </div>
+            <div style="background: #fff8e6; padding: 20px; border-radius: 12px; border-left: 5px solid #ffb000;">
+                <strong>核心コンセプト:</strong> ユーザーの関心度に合わせて、段階的に「聞く数」が増える構造。Liteで気付きを与え、Pro/Academicへ誘導します。
+            </div>
+        </section>
+
+        <!-- L Plan -->
+        <section class="section" id="lite">
+            <div class="plan-header">
+                <div class="plan-badge badge-lite">L</div>
+                <div>
+                    <div class="plan-title">Lite プラン</div>
+                    <div style="color: var(--lite); font-weight: 700;">簡易舌診 ＋ 食養生タイプ</div>
+                </div>
+            </div>
+
+            <div class="plan-info">
+                <div>
+                    <h3>ヒアリング項目 (6項目)</h3>
+                    <div class="card">
+                        <ul class="list-items">
+                            <li><span><span class="num-circle">1</span>年齢</span></li>
+                            <li><span><span class="num-circle">2</span>性別</span></li>
+                            <li><span><span class="num-circle">3</span>冷えを感じやすい？</span></li>
+                            <li><span><span class="num-circle">4</span>のぼせやすい？</span></li>
+                            <li><span><span class="num-circle">5</span>疲れやすい？</span></li>
+                            <li><span><span class="num-circle">6</span>食欲の変動ある？</span></li>
+                        </ul>
+                    </div>
+                    <p style="font-size: 0.9rem; color: #64748b;">
+                        目的：一般向け入口。寒熱判定を中心とし、ユーザーに「自分のタイプ」を認識してもらう。
+                    </p>
+                </div>
+                <div>
+                    <h3>撮影判定：寒熱軸</h3>
+                    <div class="matrix-visual">
+                        <span style="color: #3b82f6;">寒</span>
+                        <div
+                            style="width: 120px; height: 2px; background: #cbd5e1; margin: 0 15px; position: relative;">
+                            <div
+                                style="position: absolute; left: 50%; top: -4px; width: 10px; height: 10px; background: var(--primary); border-radius: 50%;">
+                            </div>
+                        </div>
+                        <span style="color: #ef4444;">熱</span>
+                    </div>
+                    <div style="margin-top: 20px;">
+                        <strong>判定ロジック（舌象と寒熱の関係）：</strong>
+                        <div class="card"
+                            style="padding: 15px; background: white; border: 1px solid #e2e8f0; font-size: 0.85rem;">
+                            <div
+                                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                <div style="text-align: center; color: #3b82f6;">
+                                    <b>寒</b><br><small>白・湿潤</small>
+                                </div>
+                                <div
+                                    style="flex-grow: 1; margin: 0 10px; display: flex; flex-direction: column; gap: 5px;">
+                                    <div
+                                        style="display: flex; justify-content: space-between; border: 1px solid #ddd; padding: 2px;">
+                                        <span>黒舌</span><span>青紫</span><span>淡白</span><span
+                                            style="background: #f0f0f0; padding: 0 5px;">淡紅白</span><span>紅舌</span><span>絳舌</span><span>暗紫</span><span>黒舌</span>
+                                    </div>
+                                    <div
+                                        style="display: flex; justify-content: space-between; border: 1px solid #ddd; padding: 2px;">
+                                        <span>黒苔</span><span>灰苔</span><span>白苔</span><span
+                                            style="background: #f0f0f0; padding: 0 5px;">薄白苔</span><span>薄黄</span><span>黄苔</span><span>黒苔</span>
+                                    </div>
+                                </div>
+                                <div style="text-align: center; color: #ef4444;">
+                                    <b>熱</b><br><small>赤・乾燥</small>
+                                </div>
+                            </div>
+                            <p style="font-size: 0.8rem; color: #64748b; line-height: 1.4;">
+                                正常（淡紅白・薄白苔）を基準に、舌色と苔の変化から寒熱スペクトラムを数値化。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- P Plan -->
+        <section class="section" id="pro">
+            <div class="plan-header">
+                <div class="plan-badge badge-pro">P</div>
+                <div>
+                    <div class="plan-title">Pro プラン</div>
+                    <div style="color: var(--pro); font-weight: 700;">寒熱虚実 4マトリクス型</div>
+                </div>
+            </div>
+
+            <div class="plan-info">
+                <div>
+                    <h3>ヒアリング項目 (15項目)</h3>
+                    <div class="card">
+                        <div style="font-size: 0.8rem; color: #64748b; margin-bottom: 10px;">Lプランの6項目 ＋ 以下の9項目</div>
+                        <ul class="list-items">
+                            <li><span><span class="num-circle">7</span>動悸</span></li>
+                            <li><span><span class="num-circle">8</span>咳</span></li>
+                            <li><span><span class="num-circle">9</span>胸重感</span></li>
+                            <li><span><span class="num-circle">10</span>腰だるさ</span></li>
+                            <li><span><span class="num-circle">11</span>むくみ</span></li>
+                            <li><span><span class="num-circle">12</span>イライラ</span></li>
+                            <li><span><span class="num-circle">13</span>下痢傾向</span></li>
+                            <li><span><span class="num-circle">14</span>不眠</span></li>
+                            <li><span><span class="num-circle">15</span>頻尿</span></li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <h3>撮影判定：寒熱 × 虚実</h3>
+                    <div class="matrix-visual"
+                        style="display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; border-style: solid; height: 320px;">
+                        <!-- 実寒 -->
+                        <div
+                            style="border-right: 1px solid #cbd5e1; border-bottom: 1px solid #cbd5e1; padding: 10px; font-size: 0.75rem;">
+                            <div
+                                style="color: #3b82f6; font-weight: 800; font-size: 1rem; text-align: center; margin-bottom: 5px;">
+                                実寒</div>
+                            <ul style="list-style: none; color: #475569; line-height: 1.2;">
+                                <li>質：淡白〜青紫</li>
+                                <li>苔：厚 白苔(黒・湿)</li>
+                                <li>形：老 (寒＜熱)</li>
+                                <li>液：湿潤</li>
+                            </ul>
+                        </div>
+                        <!-- 実熱 -->
+                        <div style="border-bottom: 1px solid #cbd5e1; padding: 10px; font-size: 0.75rem;">
+                            <div
+                                style="color: #ef4444; font-weight: 800; font-size: 1rem; text-align: center; margin-bottom: 5px;">
+                                実熱</div>
+                            <ul style="list-style: none; color: #475569; line-height: 1.2;">
+                                <li>質：紅(絳)</li>
+                                <li>苔：厚 黄苔(黒・乾)</li>
+                                <li>形：老 (寒＜熱)</li>
+                                <li>液：乾燥</li>
+                            </ul>
+                        </div>
+                        <!-- 虚寒 -->
+                        <div style="border-right: 1px solid #cbd5e1; padding: 10px; font-size: 0.75rem;">
+                            <div
+                                style="color: #60a5fa; font-weight: 800; font-size: 1rem; text-align: center; margin-bottom: 5px;">
+                                虚寒</div>
+                            <ul style="list-style: none; color: #475569; line-height: 1.2;">
+                                <li>質：淡白〜青紫</li>
+                                <li>苔：白苔(黒苔)</li>
+                                <li>形：胖嫩(歯痕)</li>
+                                <li>液：湿潤</li>
+                            </ul>
+                        </div>
+                        <!-- 虚熱 -->
+                        <div style="padding: 10px; font-size: 0.75rem;">
+                            <div
+                                style="color: #f87171; font-weight: 800; font-size: 1rem; text-align: center; margin-bottom: 5px;">
+                                虚熱</div>
+                            <ul style="list-style: none; color: #475569; line-height: 1.2;">
+                                <li>質：紅(絳)</li>
+                                <li>苔：無〜少(白〜黄)</li>
+                                <li>形：胖嫩(歯痕)</li>
+                                <li>液：乾燥</li>
+                            </ul>
+                        </div>
+                        <span class="matrix-label" style="top: -25px; font-weight: 800; color: var(--primary);">実</span>
+                        <span class="matrix-label"
+                            style="bottom: -25px; font-weight: 800; color: var(--primary);">虚</span>
+                        <span class="matrix-label"
+                            style="left: -35px; font-weight: 800; color: var(--primary);">寒</span>
+                        <span class="matrix-label"
+                            style="right: -35px; font-weight: 800; color: var(--primary);">熱</span>
+                    </div>
+                    <div style="margin-top: 40px;">
+                        <strong>出力解釈：</strong>
+                        <p style="font-size: 0.9rem;">「あなたは<b>虚寒傾向</b>です」といった4分類結果 ＋
+                            <b>五行補助分類</b>。食養生に及ばず、生活改善や呼吸法まで踏み込んだ提案を実施。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- A Plan -->
+        <section class="section" id="academic">
+            <div class="plan-header">
+                <div class="plan-badge badge-academic">A</div>
+                <div>
+                    <div class="plan-title">Academic プラン</div>
+                    <div style="color: var(--academic); font-weight: 700;">舌診アトラス搭載版</div>
+                </div>
+            </div>
+
+            <div class="plan-info">
+                <div>
+                    <h3>ヒアリング項目 (25項目)</h3>
+                    <div class="card">
+                        <div style="font-size: 0.8rem; color: #64748b; margin-bottom: 10px;">L+Pの15項目 ＋ 五行×五臓フル構成</div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <ul class="list-items">
+                                <li><span>16 皮膚乾燥</span></li>
+                                <li><span>17 喉乾き</span></li>
+                                <li><span>18 甘味欲求</span></li>
+                                <li><span>19 目疲労</span></li>
+                                <li><span>20 筋痙攣</span></li>
+                            </ul>
+                            <ul class="list-items">
+                                <li><span>21 朝起きにくい</span></li>
+                                <li><span>22 情緒不安定</span></li>
+                                <li><span>23 便秘</span></li>
+                                <li><span>24 手足冷え</span></li>
+                                <li><span>25 体重増減</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h3>判定機序：立体構造解析</h3>
+                    <div class="card">
+                        <p style="font-size: 0.95rem; line-height: 1.6;">
+                            <b>寒熱虚実 ＋ 五行分類 ＋ 苔量・舌質詳細分類</b><br>
+                            プロフェッショナルな「舌診アトラス」とAI判定を照合。
+                        </p>
+                        <div
+                            style="background: white; border: 1px solid #e2e8f0; padding: 15px; border-radius: 8px; margin-top: 15px; font-family: monospace;">
+                            出力例：<br>
+                            「肺気虚寒」 ＋ 「腎陽虚傾向」 ＋ 「痰湿停滞」
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Core Philosophy -->
+        <div class="highlight-box">
+            <h2>三層設計の核心</h2>
+            <p>プランが上がるごとに、診断の次元が拡張されます。</p>
+            <div class="core-grid">
+                <div class="core-item">
+                    <span class="label">L</span>
+                    次元：<b>横軸</b><br>
+                    解析：寒熱
+                </div>
+                <div class="core-item">
+                    <span class="label">P</span>
+                    次元：<b>4象限</b><br>
+                    解析：寒熱虚実
+                </div>
+                <div class="core-item">
+                    <span class="label">A</span>
+                    次元：<b>立体構造</b><br>
+                    解析：五行×寒熱虚実
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <script>
+        async function takeScreenshot() {
+            const btn = document.querySelector('.btn-screenshot');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = "生成中...";
+            btn.disabled = true;
+
+            const element = document.querySelector('.container');
+            const originalBoxShadow = element.style.boxShadow;
+            element.style.boxShadow = 'none';
+
+            try {
+                const canvas = await html2canvas(element, {
+                    scale: 2,
+                    useCORS: true,
+                    allowTaint: true,
+                    backgroundColor: "#f0f2f5",
+                    logging: false,
+                });
+
+                const link = document.createElement('a');
+                link.download = '舌診アプリ_3プラン設計書.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            } catch (error) {
+                console.error('Screenshot failed:', error);
+                alert('画像の生成に失敗しました。');
+            } finally {
+                element.style.boxShadow = originalBoxShadow;
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+
+</html>

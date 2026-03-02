@@ -60,6 +60,40 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, devMode,
                                     </p>
                                 </div>
                             )}
+
+                            <div className="border-t border-yellow-200 pt-3 flex flex-col gap-2">
+                                <button
+                                    onClick={() => {
+                                        const current = localStorage.getItem('FORCE_PRO') === 'true';
+                                        localStorage.setItem('FORCE_PRO', current ? 'false' : 'true');
+                                        window.location.reload();
+                                    }}
+                                    className={`w-full py-2 font-bold rounded transition-colors ${localStorage.getItem('FORCE_PRO') === 'true'
+                                        ? 'bg-[#0F1C2E] text-[#2E6F5E] border border-[#2E6F5E]'
+                                        : 'bg-[#2E6F5E] text-white hover:bg-[#255a4d]'
+                                        }`}
+                                >
+                                    {localStorage.getItem('FORCE_PRO') === 'true' ? 'Proモードを解除する' : 'Proでお試し体験する'}
+                                </button>
+                                <p className="mt-1 text-[8px] opacity-70 text-center">
+                                    ※ Proプランの表示ロジックを強制的に適用します（DEV専用）
+                                </p>
+                            </div>
+
+                            <div className="border-t border-yellow-200 pt-3">
+                                <button
+                                    onClick={() => {
+                                        localStorage.removeItem('MOCK_AI');
+                                        window.location.reload();
+                                    }}
+                                    className="w-full py-2 bg-yellow-600 text-white font-bold rounded hover:bg-yellow-700 transition-colors"
+                                >
+                                    MOCKモードをOFFにする
+                                </button>
+                                <p className="mt-1 text-[8px] opacity-70 text-center">
+                                    ※ localStorage の MOCK_AI フラグを削除してリロードします
+                                </p>
+                            </div>
                         </div>
                     )}
                 </div>

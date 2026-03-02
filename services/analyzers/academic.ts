@@ -6,9 +6,10 @@ import { DiagnosisResult, UserInfo } from '../../types';
  */
 export const analyzeAcademic = async (
     images: File[],
-    userInfo: UserInfo | null
+    userInfo: UserInfo | null,
+    userRole: string = 'FREE'
 ): Promise<DiagnosisResult> => {
-    console.log('Running Academic Analyzer...');
+    console.log(`Running Academic Analyzer for role: ${userRole}...`);
 
     return {
         heatCold: {
