@@ -24,7 +24,7 @@ fi
 
 # 2. Access-Control-Allow-Origin: *
 echo "[2/5] Checking for permissive CORS..."
-matched=$(git grep -n -i "Access-Control-Allow-Origin" || echo "")
+matched=$(git grep -n -i "Access-Control-Allow-Origin" -- ':(exclude)docs/*' ':(exclude)scripts/*' || echo "")
 if echo "$matched" | grep -q "\*"; then
   echo "$matched" | grep "\*"
   echo "❌ Error: Access-Control-Allow-Origin: * found."

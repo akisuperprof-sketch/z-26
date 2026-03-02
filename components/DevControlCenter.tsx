@@ -44,6 +44,20 @@ export const DevControlCenter: React.FC = () => {
         window.location.reload();
     };
 
+    const handleToggleFlag = (key: string, currentValue: string | null) => {
+        let newValue: string | null = null;
+        if (currentValue === '1') newValue = '0';
+        else if (currentValue === '0') newValue = '1';
+        else if (currentValue === 'true') newValue = 'false';
+        else if (currentValue === 'false') newValue = 'true';
+        else newValue = '1'; // Default toggle for unset or others
+
+        if (newValue !== null) {
+            window.localStorage.setItem(key, newValue);
+            setFlagStates(prev => ({ ...prev, [key]: newValue }));
+        }
+    };
+
     return (
         <div className="fixed bottom-4 left-4 z-50 font-sans">
             {/* Toast */}
@@ -116,13 +130,18 @@ export const DevControlCenter: React.FC = () => {
                                                 <div className="text-slate-500 text-[9px] mt-0.5 max-w-[140px] truncate" title={f.description}>{f.description}</div>
                                             </td>
                                             <td className="py-2 text-right">
-                                                {flagStates[f.key] ? (
-                                                    <span className={`px-2 py-0.5 rounded font-mono font-bold ${flagStates[f.key] === '1' || flagStates[f.key] === 'true' ? 'bg-jade-900/40 text-jade-400 border border-jade-500/20' : 'bg-blue-900/40 text-blue-400 border border-blue-500/20'}`}>
-                                                        {flagStates[f.key]}
-                                                    </span>
-                                                ) : (
-                                                    <span className="text-slate-600 font-mono text-[9px]">unset</span>
-                                                )}
+                                                <button
+                                                    onClick={() => handleToggleFlag(f.key, flagStates[f.key])}
+                                                    className="hover:scale-105 active:scale-95 transition-transform"
+                                                >
+                                                    {flagStates[f.key] ? (
+                                                        <span className={`px-2 py-0.5 rounded font-mono font-bold ${flagStates[f.key] === '1' || flagStates[f.key] === 'true' ? 'bg-jade-900/40 text-jade-400 border border-jade-500/20' : 'bg-blue-900/40 text-blue-400 border border-blue-500/20'}`}>
+                                                            {flagStates[f.key]}
+                                                        </span>
+                                                    ) : (
+                                                        <span className="text-slate-600 font-mono text-[9px] hover:text-slate-400">unset</span>
+                                                    )}
+                                                </button>
                                             </td>
                                         </tr>
                                     ))}
