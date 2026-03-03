@@ -234,14 +234,7 @@
 
         /* Temporary App Restriction Styling */
         .btn[data-cta] {
-            opacity: 0.95;
-        }
-
-        .btn[data-cta]::after {
-            content: " (準備中)";
-            font-size: 0.8em;
-            margin-left: 4px;
-            opacity: 0.7;
+            opacity: 1;
         }
 
         .btn-outline {
@@ -969,9 +962,7 @@
 
     <script>
         function navToApp(ctaName) {
-            // アプリ公開前のため、一時的に遷移を停止
-            alert("「Z-26 舌解析研究」公式アプリは現在、学生先行テストの最終調整中です。\n一般公開まで今しばらくお待ちください。");
-            console.log('App is currently restricted for Phase1 Student Testing only. CTA:', ctaName);
+            window.location.href = '/app';
         }
 
         function scrollToId(id) {

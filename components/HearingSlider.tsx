@@ -43,18 +43,21 @@ export interface HearingSliderProps {
 
 export const HearingSlider: React.FC<HearingSliderProps> = ({ question, value, onChange }) => {
   return (
-    <div className="mb-6 p-4 bg-white rounded-xl shadow-sm border border-slate-100">
-      <p className="text-sm font-medium text-slate-800 mb-4">{question.text}</p>
-      <div className="flex gap-2">
+    <div className="mb-6 p-6 bg-white rounded-[2rem] shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-slate-100 transition-all hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] group">
+      <p className="text-base font-extrabold text-slate-800 mb-6 flex items-center gap-3">
+        <span className="w-1.5 h-1.5 bg-brand-primary rounded-full group-hover:scale-150 transition-transform"></span>
+        {question.text}
+      </p>
+      <div className="flex gap-2.5">
         {scale.map((opt) => {
           const isSelected = value === opt.value;
           return (
             <button
               key={opt.label}
               onClick={() => onChange(question.id, opt.value)}
-              className={`flex-1 py-2 text-xs rounded-lg transition-colors ${isSelected
-                  ? 'bg-blue-600 text-white font-bold shadow-md'
-                  : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200'
+              className={`flex-1 py-3.5 text-xs font-black rounded-2xl transition-all duration-300 ${isSelected
+                ? 'bg-slate-900 text-white shadow-[0_10px_25px_rgba(15,23,42,0.2)] ring-2 ring-slate-900/10 scale-[1.02]'
+                : 'bg-slate-50 text-slate-500 hover:bg-slate-100 hover:text-slate-700 border border-slate-100 hover:border-slate-200'
                 }`}
             >
               {opt.label}
