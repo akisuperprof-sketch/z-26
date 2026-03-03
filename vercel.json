@@ -1,4 +1,11 @@
 {
     "buildCommand": "vite build",
-    "devCommand": "vite --port $PORT"
+    "devCommand": "vite --port $PORT",
+    "redirects": [
+        {
+            "source": "/app/:path*",
+            "destination": "/",
+            "permanent": false
+        }
+    ]
 }

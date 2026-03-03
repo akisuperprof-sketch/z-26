@@ -67,6 +67,7 @@ export default async function handler(req: any, res: any) {
             is_dummy,
             app_version,
             output_version,
+            age_range,
             payload
         } = req.body;
 
@@ -84,6 +85,7 @@ export default async function handler(req: any, res: any) {
                 is_dummy,
                 app_version,
                 output_version,
+                age_range,
                 payload
             }])
             .select();

@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { DiagnosisResult, RiskLevel, UploadedImage } from '../types';
+import { DiagnosisResult, RiskLevel, UploadedImage, PlanType } from '../types';
 import FindingCard from './FindingCard';
 import { YIN_DEF_IDS } from '../constants/patternGroups';
 import DoctorReviewForm from './DoctorReviewForm';
@@ -10,6 +10,7 @@ import StreakBadge from './StreakBadge';
 import { ShareCardData, generateShareCard } from '../utils/shareCard';
 import { getHistoryMini, getDelta } from '../utils/historyMini';
 import { getPhase1Story } from '../utils/phase1Story';
+import { mapZaoShiToLabel } from '../constants/zaoShiLabels';
 
 interface ResultsScreenProps {
   result: DiagnosisResult;
@@ -17,11 +18,26 @@ interface ResultsScreenProps {
   uploadedImages: UploadedImage[];
   onOpenDictionary?: () => void;
   plan?: string;
+  planType?: PlanType;
 }
 
-const ResultsScreen: React.FC<ResultsScreenProps> = ({ result, onRestart, uploadedImages, onOpenDictionary, plan }) => {
+const clamp = (val: number, min: number, max: number) => Math.max(min, Math.min(max, val));
+
+const ResultsScreen: React.FC<ResultsScreenProps> = ({ result, onRestart, uploadedImages, onOpenDictionary, plan, planType }) => {
   const { findings, heatCold, result_v2 } = result;
-  const isPro = plan === 'pro';
+
+  // Tier selection logic
+  const activePlan = planType || 'light';
+  const isPro = plan === 'pro' || activePlan === 'pro_personal';
+
+  const axis_visibility = {
+    heatCold: true,
+    xuShi: activePlan === 'pro_personal',
+    zaoShi: activePlan === 'pro_personal'
+  };
+
+  const axes = result_v2?.output_payload?.axes || { xuShi: 0, heatCold: 0, zaoShi: 0 };
+
   const [selectedGridKey, setSelectedGridKey] = useState<string | null>(null);
 
   // Single Source of Truth (SSoT) Definition
@@ -337,48 +353,61 @@ const ResultsScreen: React.FC<ResultsScreenProps> = ({ result, onRestart, upload
         </div>
       )}
 
-      {/* 🚀 今日のコンディションタイプ (Hero Upgrade v1) */}
-      <div className="bg-gradient-to-br from-[#1F3A5F] via-[#162a44] to-[#0F1C2E] rounded-[12px] p-8 sm:p-12 mb-10 text-white shadow-xl relative overflow-hidden text-center border border-white/10 animate-fade-in">
-        {/* decorative mesh gradient */}
-        <div className="absolute top-0 left-0 w-full h-full opacity-20 pointer-events-none">
-          <div className="absolute -top-24 -left-24 w-64 h-64 bg-jade-500/20 rounded-full blur-3xl"></div>
-          <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl"></div>
+      {/* 🚀 今日の観測結果: ヒーロー再設計 (Hero Upgrade v2) */}
+      <div className="bg-slate-900 rounded-3xl p-8 sm:p-12 mb-10 text-white shadow-2xl relative overflow-hidden text-center border border-white/5 animate-fade-in shadow-blue-900/10">
+        {/* 背景の装飾: アカデミックなグリッドと微細なグラデーション */}
+        <div className="absolute inset-0 opacity-10 pointer-events-none">
+          <div className="absolute inset-0" style={{ backgroundImage: 'linear-gradient(#ffffff 1px, transparent 1px), linear-gradient(90deg, #ffffff 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
+          <div className="absolute -top-40 -left-40 w-96 h-96 bg-jade-500/20 rounded-full blur-[120px]"></div>
+          <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-blue-500/10 rounded-full blur-[120px]"></div>
         </div>
 
-        <div className="relative z-10">
-          <p className="text-jade-400 text-[11px] font-black uppercase tracking-[0.2em] mb-4 drop-shadow-sm">Today's Condition Type</p>
-          <div className="mb-6">
-            <span className="text-[10px] font-black bg-white/10 px-4 py-1.5 rounded-full backdrop-blur-md border border-white/10 uppercase tracking-widest text-blue-200">
-              Analysis Complete
+        <div className="relative z-10 max-w-2xl mx-auto">
+          <div className="flex flex-col items-center mb-10">
+            <span className="text-[10px] font-black bg-jade-500/10 text-jade-400 px-4 py-1.5 rounded-full border border-jade-500/20 uppercase tracking-[0.2em] mb-4 backdrop-blur-sm">
+              Analysis Complete | Phase 1 Research
             </span>
+            <div className="h-0.5 w-12 bg-jade-500/30 mb-8"></div>
+
+            <p className="text-blue-200/60 text-[10px] font-black uppercase tracking-[0.2em] mb-1">Today's Condition Type</p>
+            <p className="text-jade-400 text-xs font-black mb-3">今日の推定タイプ</p>
+            <h2 className="text-5xl sm:text-6xl font-black mb-6 tracking-tighter leading-tight text-white">
+              {conditionType.name}
+            </h2>
+
+            <div className="h-1 w-24 bg-gradient-to-r from-transparent via-jade-500 to-transparent opacity-50 mb-8"></div>
+
+            {isPhase1StoryEnabled && story ? (
+              <div className="mb-10 space-y-3">
+                <p className="text-xl sm:text-2xl font-bold text-white tracking-tight leading-relaxed">
+                  {story.titleLine}
+                </p>
+                <p className="text-sm text-blue-200/70 font-medium max-w-md mx-auto leading-relaxed">
+                  {story.subLine}
+                </p>
+              </div>
+            ) : (
+              <p className="text-sm sm:text-base text-blue-200/80 font-medium mb-10 max-w-lg mx-auto leading-relaxed">
+                {conditionType.description.split('。')[0]}。
+              </p>
+            )}
           </div>
-          <h2 className="text-4xl sm:text-5xl font-black mb-5 tracking-tighter leading-tight drop-shadow-md">
-            {conditionType.name}
-          </h2>
 
-          {isPhase1StoryEnabled && story ? (
-            <div className="mb-8 animate-fade-in-up">
-              <p className="text-lg sm:text-xl font-bold text-white mb-2 tracking-wide leading-relaxed">
-                {story.titleLine}
-              </p>
-              <p className="text-sm text-blue-100/90 font-medium">
-                {story.subLine}
-              </p>
-            </div>
-          ) : (
-            <p className="text-sm sm:text-base text-blue-100/90 font-medium mb-10 max-w-lg mx-auto leading-relaxed">
-              {conditionType.description.slice(0, 15)}（今日の傾向です）
-            </p>
-          )}
-
-          <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-6 text-left border border-white/10 shadow-inner max-w-xl mx-auto">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-[10px] font-black text-jade-400 uppercase tracking-widest px-3 py-1 bg-jade-400/10 rounded-md border border-jade-400/20">
-                Recommended Care
+          {/* 重要アクション: 次の一手 */}
+          <div className="bg-white/5 backdrop-blur-2xl rounded-2xl p-6 sm:p-8 text-left border border-white/10 shadow-2xl">
+            <div className="flex items-center gap-3 mb-4">
+              <span className="p-1.5 bg-jade-500/20 rounded-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-jade-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
               </span>
+              <h4 className="text-xs font-black text-jade-400 uppercase tracking-widest">Next Step / セルフケア</h4>
             </div>
-            <p className="text-sm sm:text-base leading-relaxed font-bold text-white/95">
+            <p className="text-base sm:text-lg leading-relaxed font-bold text-white/95">
               {conditionType.care}
+            </p>
+            <p className="text-[10px] text-white/30 mt-4 font-medium italic border-t border-white/5 pt-4">
+              ※本結果は研究データに基づく個人の観測値であり、医療診断ではありません。
             </p>
           </div>
         </div>
@@ -490,52 +519,158 @@ const ResultsScreen: React.FC<ResultsScreenProps> = ({ result, onRestart, upload
         <p className="text-slate-600 mt-2">これは医学的診断ではありません。あくまで健康管理の参考としてご活用ください。</p>
       </div>
 
-      {heatCold && (
-        <div className=" bg-white p-6 rounded-2xl shadow-sm border border-slate-200 mb-8">
-          <h3 className="text-xl font-bold text-brand-primary mb-4 flex items-center">
-            <span className="mr-2">🌡️</span> 寒熱バランス判定
-          </h3>
-          <div className="mb-6">
-            <p className="text-xs font-bold text-slate-500 mb-2">▼ 判定基準チャート（左：寒 〜 右：熱）</p>
-            <div className="w-full rounded-lg overflow-hidden border border-slate-200 shadow-sm">
-              <img src="/tongue_scale_chart.jpg" alt="寒熱基準チャート" className="w-full object-contain max-h-48" />
-            </div>
-            <div className="flex justify-between text-[10px] text-slate-400 mt-1 px-1">
-              <span>寒（Cold）</span>
-              <span>正常（Normal）</span>
-              <span>熱（Heat）</span>
-            </div>
+      {/* 📊 Constitutional Chart / 体質傾向分析 (2D for Pro, 1D for Light) */}
+      <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 mb-8 overflow-hidden">
+        <h3 className="text-xl font-bold text-brand-primary mb-6 flex items-center justify-between">
+          <div className="flex items-center">
+            {axis_visibility.xuShi ? '多角的な体質傾向分析' : '寒熱バランス判定'}
           </div>
-          <div className="mb-6 relative pt-2">
-            <div className="relative h-4 w-full rounded-full bg-gradient-to-r from-blue-300 via-slate-100 to-red-400 border border-slate-200">
-              <div className="absolute top-0 bottom-0 left-[37.5%] w-[1px] bg-slate-400 opacity-50"></div>
-              <div className="absolute top-0 bottom-0 left-[50%] w-[2px] bg-green-500 z-10 opacity-70"></div>
-              <div className="absolute top-0 bottom-0 left-[62.5%] w-[1px] bg-slate-400 opacity-50"></div>
+          {activePlan === 'pro_personal' && (
+            <span className="bg-blue-100 text-blue-700 text-[10px] px-2 py-0.5 rounded-full font-black">PRO ANALYSIS</span>
+          )}
+        </h3>
+
+        {/* 2D Chart for Pro Personal */}
+        {axis_visibility.xuShi ? (
+          <div className="flex flex-col items-center gap-8 mb-4">
+            <div className="relative w-full max-w-[280px] aspect-square bg-slate-50/50 rounded-2xl border border-slate-100 shadow-inner flex items-center justify-center">
+              {/* Reference Grid */}
+              <div className="absolute inset-4 border border-slate-200/50 rounded-full opacity-50"></div>
+              <div className="absolute inset-12 border border-slate-200/50 rounded-full opacity-30"></div>
+
+              {/* Axes */}
+              <div className="absolute left-1/2 top-4 bottom-4 w-[1px] bg-slate-300 opacity-50"></div>
+              <div className="absolute top-1/2 left-4 right-4 h-[1px] bg-slate-300 opacity-50"></div>
+
+              {/* Axis Labels */}
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 text-[10px] font-black text-blue-500 uppercase tracking-tighter">寒 (Cold)</div>
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 text-[10px] font-black text-red-500 uppercase tracking-tighter">熱 (Heat)</div>
+              <div className="absolute left-[-5px] top-1/2 -translate-y-1/2 text-[10px] font-black text-jade-700 -rotate-90 origin-center whitespace-nowrap">実 (Excess)</div>
+              <div className="absolute right-[-5px] top-1/2 -translate-y-1/2 text-[10px] font-black text-orange-700 -rotate-90 origin-center scale-x-[-1] whitespace-nowrap tracking-tighter">
+                <span className="rotate-180 block">虚 (Deficiency)</span>
+              </div>
+
+              {/* The Data Point (Radar) */}
               <div
-                className="absolute top-1/2 -mt-2 w-4 h-4 rounded-full bg-slate-800 border-2 border-white shadow-lg transition-all duration-1000 ease-out z-20"
+                className="absolute w-8 h-8 -ml-4 -mt-4 transition-all duration-1000 ease-out z-20"
                 style={{
-                  left: `calc(${((Math.min(Math.max(heatCold.score, -4), 4) + 4) / 8) * 100}% - 8px)`
+                  left: `${50 + (clamp(axes.xuShi / 1.5, -45, 45))}%`,
+                  top: `${50 - (clamp(axes.heatCold / 1.5, -45, 45))}%`
                 }}
-              />
+              >
+                <div className="relative w-full h-full flex items-center justify-center">
+                  <div className="absolute w-full h-full bg-brand-primary/20 rounded-full animate-ping opacity-30"></div>
+                  <div className="w-4 h-4 bg-brand-primary border-2 border-white rounded-full shadow-lg"></div>
+                </div>
+              </div>
+
+              {/* Type Summary Label */}
+              <div className="absolute bottom-4 right-4 bg-white/80 backdrop-blur-sm px-2 py-1 rounded border border-slate-100 shadow-sm text-[9px] font-bold text-slate-500">
+                X:{axes.xuShi} Y:{axes.heatCold}
+              </div>
             </div>
-            <div className="mt-4 text-center">
-              <p className="text-sm text-slate-500 font-bold mb-1">判定スコア</p>
-              <div className="text-4xl font-extrabold text-slate-800 tracking-tight">
-                {heatCold.score > 0 ? `+${heatCold.score}` : heatCold.score}
-                <span className="text-lg ml-2 font-medium text-slate-600">
-                  / {heatCold.label}
-                </span>
+
+            <div className="grid grid-cols-2 gap-4 w-full">
+              <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                <span className="block text-[9px] font-black text-slate-400 uppercase mb-1">虚実スコア</span>
+                <span className="text-xl font-black text-slate-700">{axes.xuShi > 0 ? `+${axes.xuShi}` : axes.xuShi}</span>
+                <span className="text-[10px] ml-1.5 font-bold text-slate-500">{axes.xuShi > 15 ? '虚傾向' : axes.xuShi < -15 ? '実傾向' : '正常'}</span>
+              </div>
+              <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                <span className="block text-[9px] font-black text-slate-400 uppercase mb-1">寒熱スコア</span>
+                <span className="text-xl font-black text-slate-700">{axes.heatCold > 0 ? `+${axes.heatCold}` : axes.heatCold}</span>
+                <span className="text-[10px] ml-1.5 font-bold text-slate-500">{axes.heatCold > 15 ? '寒傾向' : axes.heatCold < -15 ? '熱傾向' : '正常'}</span>
+              </div>
+            </div>
+
+            {/* ZaoShi: 津液傾向 (2.5 Axis) */}
+            {(() => {
+              const zs = mapZaoShiToLabel(axes.zaoShi);
+              return (
+                <div className="w-full p-5 bg-blue-50/50 rounded-2xl border border-blue-100 flex items-center justify-between animate-fade-in shadow-inner">
+                  <div className="flex-1 mr-6">
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <span className="w-2 h-2 bg-blue-400 rounded-full"></span>
+                      <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest">津液傾向</span>
+                    </div>
+                    <span className={`text-xl font-black ${zs.color} tracking-tight`}>
+                      {zs.label}
+                    </span>
+                    {zs.subLabel && (
+                      <p className="text-[11px] text-slate-500 font-bold leading-relaxed mt-1">
+                        {zs.subLabel}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex gap-1.5 items-end px-2">
+                    {[...Array(5)].map((_, i) => {
+                      const isActive = (zs.type === 'DRY' && i === 0) ||
+                        (zs.type === 'SLIGHT_DRY' && i <= 1) ||
+                        (zs.type === 'BALANCED' && i <= 2) ||
+                        (zs.type === 'WET' && i <= 4);
+                      return (
+                        <div
+                          key={i}
+                          className={`w-2.5 rounded-full transition-all duration-700 ease-out ${isActive ? (zs.type === 'WET' ? 'bg-blue-400 shadow-[0_0_10px_rgba(96,165,250,0.5)]' : 'bg-jade-400 shadow-[0_0_10px_rgba(52,211,153,0.5)]') : 'bg-slate-200'}`}
+                          style={{ height: `${12 + i * 4}px` }}
+                        ></div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })()}
+          </div>
+        ) : (
+          /* 1D Gauge for Light Plan */
+          <div className="space-y-6">
+            <div className="mb-6">
+              <p className="text-xs font-bold text-slate-500 mb-2">▼ 判定基準チャート（左：寒 〜 右：熱）</p>
+              <div className="w-full rounded-lg overflow-hidden border border-slate-200 shadow-sm transition-transform hover:scale-[1.01]">
+                <img src="/tongue_scale_chart.jpg" alt="寒熱基準チャート" className="w-full object-contain max-h-48" />
+              </div>
+              <div className="flex justify-between text-[10px] text-slate-400 mt-1 px-1 font-bold">
+                <span className="text-blue-500">寒 (Cold)</span>
+                <span>正常 (Normal)</span>
+                <span className="text-red-500">熱 (Heat)</span>
+              </div>
+            </div>
+            <div className="mb-6 relative pt-2">
+              <div className="relative h-6 w-full rounded-full bg-gradient-to-r from-blue-300 via-slate-100 to-red-400 border border-slate-200 shadow-inner">
+                <div className="absolute top-0 bottom-0 left-[37.5%] w-[1px] bg-slate-400 opacity-50"></div>
+                <div className="absolute top-0 bottom-0 left-[50%] w-[2px] bg-green-500 z-10 opacity-70"></div>
+                <div className="absolute top-0 bottom-0 left-[62.5%] w-[1px] bg-slate-400 opacity-50"></div>
+                <div
+                  className="absolute top-1/2 -mt-3.5 w-7 h-7 rounded-full bg-slate-800 border-4 border-white shadow-xl transition-all duration-1000 ease-out z-20 flex items-center justify-center"
+                  style={{
+                    // Correcting polarity: HeatCold.score in Lite is Heat positive, but we want 0% for Cold and 100% for Heat.
+                    // If heatCold exists, we use it. If not, we fallback to axes.
+                    left: `calc(${((planType === 'light' ? (heatCold?.score || 0) : (-axes.heatCold / 25)) + 4) / 8 * 100}% - 14px)`
+                  }}
+                >
+                  <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></div>
+                </div>
+              </div>
+              <div className="mt-4 text-center">
+                <div className="text-4xl font-black text-slate-800 tracking-tighter">
+                  {planType === 'light' ? (heatCold?.score || 0) : Math.round(-axes.heatCold / 2.5)}/100
+                  <span className="text-base ml-3 font-bold text-brand-primary bg-blue-50 px-3 py-1 rounded-full border border-blue-100 align-middle">
+                    {heatCold?.label || (axes.heatCold > 15 ? '寒傾向' : axes.heatCold < -15 ? '熱傾向' : '正常')}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
-          <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
-            <p className="text-sm font-bold text-slate-700 mb-1">AI判定理由:</p>
-            <p className="text-sm text-slate-600 leading-relaxed text-left">
-              {heatCold.explanation}
-            </p>
-          </div>
+        )}
+
+        {/* Unified AI Explanation */}
+        <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 mt-4">
+          <p className="text-[10px] font-black text-slate-400 uppercase mb-2 tracking-widest">Analysis Insight</p>
+          <p className="text-sm text-slate-600 leading-relaxed text-left font-medium">
+            {heatCold?.explanation || result.guard?.message || "身体のバランスを整えましょう。各項目のスコアは日々のコンディションの目安としてご活用ください。"}
+          </p>
         </div>
-      )}
+      </div>
 
       {renderPatternSection()}
 
@@ -593,31 +728,75 @@ const ResultsScreen: React.FC<ResultsScreenProps> = ({ result, onRestart, upload
         </ul>
       </div>
 
+      {/* 📱 App Interface Showcase: 3枚のモック画像 */}
+      <div className="mt-12 mb-16 pt-12 border-t border-slate-100 overflow-hidden">
+        <h3 className="text-[11px] font-black text-slate-400 flex items-center tracking-[0.2em] uppercase mb-8 justify-center">
+          <span className="w-10 h-[1px] bg-slate-200 mr-3"></span>
+          User Interface Showcase
+          <span className="w-10 h-[1px] bg-slate-200 ml-3"></span>
+        </h3>
+        <div className="flex gap-4 overflow-x-auto pb-8 snap-x no-scrollbar md:grid md:grid-cols-3 md:gap-6">
+          <div className="flex-shrink-0 w-64 md:w-full snap-center group">
+            <div className="aspect-[9/16] rounded-2xl overflow-hidden shadow-lg border border-slate-100 bg-slate-50 relative group-hover:shadow-2xl transition-all duration-500">
+              <img src="/assets/mock_01_capture.png" alt="Capture Process" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            </div>
+            <p className="mt-4 text-center text-xs font-black text-slate-500 uppercase tracking-widest">01 / Capture</p>
+          </div>
+          <div className="flex-shrink-0 w-64 md:w-full snap-center group">
+            <div className="aspect-[9/16] rounded-2xl overflow-hidden shadow-lg border border-slate-100 bg-slate-50 relative group-hover:shadow-2xl transition-all duration-500">
+              <img src="/assets/mock_02_hearing.png" alt="Hearing Process" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            </div>
+            <p className="mt-4 text-center text-xs font-black text-slate-500 uppercase tracking-widest">02 / Hearing</p>
+          </div>
+          <div className="flex-shrink-0 w-64 md:w-full snap-center group">
+            <div className="aspect-[9/16] rounded-2xl overflow-hidden shadow-lg border border-slate-100 bg-slate-50 relative group-hover:shadow-2xl transition-all duration-500">
+              <img src="/assets/mock_03_results.png" alt="Results View" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            </div>
+            <p className="mt-4 text-center text-xs font-black text-slate-500 uppercase tracking-widest">03 / Analysis</p>
+          </div>
+        </div>
+      </div>
+
       {isShareCardEnabled && (
-        <div className="mt-8 bg-blue-50/50 p-6 rounded-2xl border border-blue-100/50 text-center animate-fade-in transition-all">
-          <p className="text-sm font-bold text-slate-700 mb-4">今日の記録をSNSでシェアしてみよう 📢</p>
-          <div className="flex flex-col sm:flex-row justify-center gap-3">
+        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/80 backdrop-blur-xl border-t border-slate-200 z-50 flex flex-col items-center gap-3 animate-slide-up sm:relative sm:bg-blue-50/50 sm:p-8 sm:rounded-3xl sm:border sm:mt-8 sm:mb-8">
+          <p className="text-xs font-black text-slate-500 flex items-center gap-2 mb-2 sm:mb-4">
+            <span className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse"></span>
+            今日の観測結果を研究に貢献する
+          </p>
+          <div className="flex w-full max-w-lg gap-3">
             <button
               onClick={handleShareCard}
-              className="flex items-center justify-center gap-2 bg-brand-primary text-white font-bold py-3 px-6 rounded-xl hover:opacity-90 shadow-sm transition-opacity"
+              className="flex-1 flex items-center justify-center gap-2 bg-slate-900 text-white font-black py-4 px-6 rounded-2xl hover:bg-slate-800 shadow-xl shadow-slate-900/10 transition-all transform active:scale-[0.98]"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
               </svg>
               画像を保存
             </button>
             <button
               onClick={handleCopyLink}
-              className="flex items-center justify-center gap-2 bg-white text-slate-700 font-bold py-3 px-6 rounded-xl border border-slate-300 hover:bg-slate-50 shadow-sm transition-colors"
+              title="リンクコピー"
+              className="px-6 bg-white text-slate-900 font-bold py-4 rounded-2xl border border-slate-200 hover:bg-slate-50 shadow-sm transition-all flex items-center gap-2"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
               </svg>
-              リンクコピー
+              <span className="hidden sm:inline">リンクコピー</span>
+              <span className="sr-only">リンクコピー</span>
             </button>
           </div>
+          <button
+            onClick={onRestart}
+            className="text-[10px] font-black text-slate-400 mt-2 uppercase tracking-[0.2em] hover:text-brand-primary transition-colors"
+          >
+            ← 別の観測を開始する
+          </button>
         </div>
-      )}
+      )
+      }
 
       <div className="mt-8 text-center space-y-4 font-sans">
         {result.savedId && (
@@ -668,7 +847,7 @@ const ResultsScreen: React.FC<ResultsScreenProps> = ({ result, onRestart, upload
           </>
         )}
       </div>
-    </div>
+    </div >
   );
 };
 

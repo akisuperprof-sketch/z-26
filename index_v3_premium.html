@@ -1,0 +1,913 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- SEO / OG -->
+    <title>Z-26 舌解析研究｜科学的な体調傾向セルフケア観測プログラム</title>
+    <meta name="description" content="1000名規模の学生先行テスト実施中。AIによる舌解析ロジックの妥当性と習慣化効果を検証する、公式研究プロジェクト「Z-26」のウェブサイト。" />
+    <meta property="og:title" content="Z-26 舌解析研究：体調傾向を科学する" />
+    <meta property="og:description" content="舌のサインから体調のバランスを可視化。研究機関トーンで誠実な観測を支えます。" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://z26-project.example.com/" />
+    <meta property="og:image" content="https://z26-project.example.com/ogp.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --navy: #0e1624;
+            --navy-light: #1c2636;
+            --jade: #18b7a5;
+            --off-white: #f9fafb;
+            --white: #ffffff;
+            --border: rgba(14, 22, 36, 0.08);
+            --border-light: rgba(255, 255, 255, 0.1);
+            --text-main: #0b1220;
+            --text-muted: #5a6b85;
+            --radius: 12px;
+            --radius-lg: 18px;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: "Noto Sans JP", -apple-system, sans-serif;
+            color: var(--text-main);
+            line-height: 1.6;
+            background-color: var(--white);
+            scroll-behavior: smooth;
+        }
+
+        .wrap {
+            max-width: 1040px;
+            margin: 0 auto;
+            padding: 0 40px;
+        }
+
+        /* Typography */
+        h1,
+        h2,
+        h3,
+        h4 {
+            margin: 0;
+            letter-spacing: -0.02em;
+            font-weight: 900;
+        }
+
+        h1 {
+            font-size: 52px;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            color: var(--white);
+        }
+
+        h2 {
+            font-size: 32px;
+            color: var(--navy);
+            margin-bottom: 40px;
+        }
+
+        p.lead {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 400;
+            max-width: 600px;
+            margin-bottom: 40px;
+        }
+
+        /* Layout Helpers */
+        section {
+            padding: 100px 0;
+        }
+
+        .container-full {
+            width: 100%;
+        }
+
+        .flex-center {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        /* Navigation */
+        .topbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background: rgba(14, 22, 36, 0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-light);
+            height: 72px;
+        }
+
+        .topbar .wrap {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 100%;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo {
+            width: 32px;
+            height: 32px;
+            background: var(--jade);
+            border-radius: 8px;
+        }
+
+        .brand-name {
+            color: var(--white);
+            font-weight: 900;
+            font-size: 18px;
+            letter-spacing: 1px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+        }
+
+        .nav-links a {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 13px;
+            font-weight: 700;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--white);
+        }
+
+        /* Tooltip */
+        .ti {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            background: var(--text-muted);
+            color: white;
+            border-radius: 50%;
+            font-size: 10px;
+            cursor: help;
+            vertical-align: middle;
+            margin-left: 6px;
+            font-weight: 900;
+            transition: background 0.2s;
+        }
+
+        .ti::after {
+            content: attr(data-tip);
+            position: absolute;
+            bottom: 140%;
+            left: 50%;
+            transform: translateX(-50%) scale(0.8);
+            background: var(--navy);
+            color: white;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 12px;
+            width: 260px;
+            line-height: 1.6;
+            pointer-events: none;
+            opacity: 0;
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 200;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            font-weight: 500;
+            text-align: left;
+        }
+
+        .ti:hover::after,
+        .ti.active::after {
+            transform: translateX(-50%) scale(1);
+            opacity: 1;
+        }
+
+        .ti:hover {
+            background: var(--jade);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 14px 28px;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background-color: var(--jade);
+            color: var(--navy);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(24, 183, 165, 0.2);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: var(--white);
+        }
+
+        .btn-outline:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-color: var(--white);
+        }
+
+        .btn-dark-outline {
+            background-color: transparent;
+            border: 1px solid var(--border);
+            color: var(--navy);
+        }
+
+        .btn-dark-outline:hover {
+            background-color: var(--off-white);
+        }
+
+        /* Hero */
+        .hero {
+            background-color: var(--navy);
+            padding: 160px 0 100px 0;
+            color: var(--white);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 60%;
+            height: 100%;
+            background: radial-gradient(circle at 70% 30%, rgba(24, 183, 165, 0.1), transparent 70%);
+        }
+
+        .hero-label {
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            color: var(--jade);
+            margin-bottom: 24px;
+            text-transform: uppercase;
+        }
+
+        .hero-ctas {
+            display: flex;
+            gap: 16px;
+            margin-top: 48px;
+        }
+
+        /* iPhone Mockup (CSS) */
+        .iphone-mock {
+            width: 280px;
+            height: 580px;
+            background: #000;
+            border: 6px solid #222;
+            border-radius: 44px;
+            position: relative;
+            box-shadow: 0 50px 100px rgba(0, 0, 0, 0.5);
+            margin: 0 auto;
+        }
+
+        .iphone-screen {
+            width: 100%;
+            height: 100%;
+            background: #f9fafb;
+            border-radius: 38px;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .iphone-header {
+            height: 44px;
+            background: var(--navy);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .iphone-content {
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .mock-radar {
+            width: 100%;
+            aspect-ratio: 1;
+            background: white;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mock-radar::after {
+            content: "Radar Chart Display";
+            font-size: 9px;
+            font-weight: 800;
+            color: var(--muted);
+            opacity: 0.5;
+        }
+
+        .mock-card {
+            background: white;
+            border-radius: 16px;
+            padding: 16px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+        }
+
+        .mock-bar {
+            height: 6px;
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 99px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mock-bar-fill {
+            height: 100%;
+            width: 65%;
+            background: var(--jade);
+        }
+
+        /* White Section Tables */
+        .white-section {
+            background: var(--white);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .overview-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+        }
+
+        .overview-table th,
+        .overview-table td {
+            padding: 24px 32px;
+            border-bottom: 1px solid var(--border);
+            text-align: left;
+            vertical-align: middle;
+        }
+
+        .overview-table th {
+            background: var(--off-white);
+            width: 35%;
+            color: var(--navy);
+            font-size: 14px;
+            font-weight: 900;
+        }
+
+        .overview-table td {
+            font-size: 15px;
+            color: var(--text-main);
+        }
+
+        .overview-table tr:last-child th,
+        .overview-table tr:last-child td {
+            border-bottom: 0;
+        }
+
+        /* Progress Stats */
+        .stats-section {
+            background: var(--off-white);
+            padding: 60px 0;
+        }
+
+        .stats-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 40px;
+            border-top: 1px solid var(--border);
+            padding-top: 40px;
+        }
+
+        .stat-item {
+            flex: 1;
+        }
+
+        .stat-num {
+            font-size: 40px;
+            font-weight: 900;
+            color: var(--navy);
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Student Program Block */
+        .student-block {
+            background-color: var(--navy);
+            color: var(--white);
+            overflow: hidden;
+            padding: 0;
+        }
+
+        .student-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            align-items: stretch;
+        }
+
+        .student-image {
+            background-image: url('student_photo_premium_v3_1772507366243.png');
+            background-size: cover;
+            background-position: center;
+            min-height: 600px;
+        }
+
+        .student-content {
+            padding: 100px 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .student-title {
+            font-size: 40px;
+            margin-bottom: 24px;
+        }
+
+        .student-desc {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 40px;
+        }
+
+        .student-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+            margin-bottom: 48px;
+        }
+
+        .info-item {
+            border-left: 2px solid var(--jade);
+            padding-left: 16px;
+        }
+
+        .info-item dt {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--jade);
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .info-item dd {
+            font-size: 15px;
+            margin: 0;
+            font-weight: 500;
+        }
+
+        /* General Plan */
+        .plan-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 40px;
+        }
+
+        .plan-table th,
+        .plan-table td {
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border);
+            text-align: left;
+        }
+
+        .plan-table th {
+            font-size: 14px;
+            font-weight: 900;
+            color: var(--navy);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .plan-table td:first-child {
+            font-weight: 900;
+            width: 40%;
+        }
+
+        .plan-table td:last-child {
+            text-align: right;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        /* Roadmap */
+        .roadmap {
+            background: var(--off-white);
+            padding: 60px 0;
+        }
+
+        .roadmap-list {
+            display: flex;
+            gap: 40px;
+            color: var(--text-muted);
+        }
+
+        .roadmap-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            font-weight: 700;
+            opacity: 0.6;
+        }
+
+        .roadmap-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--text-muted);
+            border-radius: 50%;
+        }
+
+        /* Fixed CTA */
+        .fixed-cta {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid var(--border);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+        }
+
+        .fixed-cta .wrap {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .fixed-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+
+        .fixed-title {
+            font-size: 14px;
+            font-weight: 900;
+            margin-top: 2px;
+        }
+
+        /* Responsible adjustments */
+        @media (max-width: 900px) {
+            h1 {
+                font-size: 40px;
+            }
+
+            .grid-2,
+            .student-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .student-content {
+                padding: 60px 40px;
+            }
+
+            .stats-row {
+                flex-direction: column;
+                gap: 32px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="topbar">
+        <div class="wrap">
+            <div class="brand">
+                <div class="logo"></div>
+                <span class="brand-name">Z-26</span>
+            </div>
+            <div class="nav-links">
+                <a href="#overview">研究概要</a>
+                <a href="#student">学生プログラム</a>
+                <a href="#plans">一般プラン</a>
+                <a href="#faq">FAQ</a>
+            </div>
+            <button class="btn btn-primary" onclick="navToApp('top_primary')">診断をはじめる</button>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="wrap">
+            <div class="grid-2">
+                <div class="hero-text">
+                    <div class="hero-label">Project Z-26｜学生テスト実施中</div>
+                    <h1>舌で、今日の体調傾向を<br>科学する。</h1>
+                    <p class="lead">1000名規模の学生先行テストにより、舌解析ロジックの妥当性と習慣化の効果を多角的に検証しています。</p>
+                    <div class="hero-ctas">
+                        <button class="btn btn-primary" onclick="navToApp('hero_primary')">診断をはじめる</button>
+                        <button class="btn btn-outline" onclick="scrollToId('student')">学生テストに参加する</button>
+                    </div>
+                </div>
+                <div class="hero-visual">
+                    <div class="iphone-mock">
+                        <div class="iphone-screen">
+                            <div class="iphone-header">Z-26 RESEARCH MONITOR</div>
+                            <div class="iphone-content">
+                                <div class="mock-radar"></div>
+                                <div class="mock-card">
+                                    <div style="font-size:10px; opacity:0.5; margin-bottom:4px">CURRENT ANALYSIS</div>
+                                    <div style="font-size:16px; font-weight:900; color:var(--jade)">Score: 92.4</div>
+                                    <div style="font-size:11px; font-weight:700; margin:8px 0">安定的な傾向です</div>
+                                    <div class="mock-bar">
+                                        <div class="mock-bar-fill"></div>
+                                    </div>
+                                </div>
+                                <div class="mock-card" style="flex:1">
+                                    <div style="font-size:10px; opacity:0.5; margin-bottom:8px">DAILY LOG</div>
+                                    <div style="display:flex; gap:6px; flex-direction:column">
+                                        {[1,2,3,4].map(i => (
+                                        <div key={i}
+                                            style="height:12px; background:var(--off-white); border-radius:4px"></div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section id="overview" class="white-section">
+        <div class="wrap">
+            <h2>研究プロジェクトの位置づけ</h2>
+            <table class="overview-table">
+                <tr>
+                    <th>研究目的 <span class="ti" data-tip="Phase1では学生1000名のデータを蓄積し、解析ロジックの妥当性を検証します。">ⓘ</span></th>
+                    <td>舌解析AIを用いた体調傾向観測の効果測定および、長期的な習慣化プロセスの科学的検証。</td>
+                </tr>
+                <tr>
+                    <th>医療との線引き <span class="ti" data-tip="医療の確定診断ではなく、日々のセルフケア判断を支える傾向整理ツールです。">ⓘ</span></th>
+                    <td>本プログラムは個人の主観不調を言語化・可視化するものであり、医療診断の代替ではありません。</td>
+                </tr>
+                <tr>
+                    <th>匿名化管理 <span class="ti" data-tip="匿名IDで管理し、研究利用は同意した場合に限ります。">ⓘ</span></th>
+                    <td>すべてのデータは個人を識別できない匿名IDで管理。研究へのデータ利用はユーザーの明示的な同意がある場合に限られます。</td>
+                </tr>
+                <tr>
+                    <th>Phase1の目標</th>
+                    <td>学生テスト1000名参加、および60%以上の体調傾向適合率の達成検証。</td>
+                </tr>
+            </table>
+        </div>
+    </section>
+
+    <section class="stats-section">
+        <div class="wrap">
+            <div class="stats-row">
+                <div class="stat-item">
+                    <div class="stat-num">1,000</div>
+                    <div class="stat-label">学生テスト目標</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-num">Measure</div>
+                    <div class="stat-label">継続率（Phase1計測中）</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-num">Verify</div>
+                    <div class="stat-label">データ蓄積と妥当性検証中</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="student" class="student-block">
+        <div class="student-grid">
+            <div class="student-image" title="Japanese university student photo placeholder"></div>
+            <div class="student-content">
+                <h2 class="student-title" style="color:white">学生テスト参加プログラム</h2>
+                <p class="student-desc">私たちは、次世代のヘルスケア体験を構築するために、学生の皆様に先行利用の機会を提供しています。あなたの毎日が、未来の解析精度をつくります。</p>
+
+                <dl class="student-info">
+                    <div class="info-item">
+                        <dt>期間</dt>
+                        <dd>3ヶ月間</dd>
+                    </div>
+                    <div class="info-item">
+                        <dt>提供</dt>
+                        <dd>Light機能無制限 + Pro体験2回</dd>
+                    </div>
+                    <div class="info-item">
+                        <dt>条件</dt>
+                        <dd>研究参加への同意（任意）</dd>
+                    </div>
+                    <div class="info-item">
+                        <dt>匿名性</dt>
+                        <dd>完全匿名IDによる記録</dd>
+                    </div>
+                </dl>
+
+                <div
+                    style="margin-bottom: 40px; padding: 20px; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; background: rgba(255,255,255,0.03);">
+                    <div style="font-size: 11px; font-weight: 700; color: var(--jade); margin-bottom: 8px;">PROGRAM
+                        COMPLETION BENEFIT</div>
+                    <div style="font-size: 15px; font-weight: 900;">終了後特典：学生限定Pro割プラン（480円/月）</div>
+                </div>
+
+                <div class="student-ctas">
+                    <button class="btn btn-primary" onclick="navToApp('student_apply')">プログラムに参加する（無料）</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="plans" class="white-section">
+        <div class="wrap">
+            <h2>一般利用（Phase1 公開版）</h2>
+            <p class="lead" style="color: var(--text-muted); font-size: 16px;">Phase1は拡散・習慣化を最優先とした暫定的な価格設定となっております。</p>
+
+            <table class="plan-table">
+                <thead>
+                    <tr>
+                        <th>Plan Level</th>
+                        <th>Monthly Flat Fee</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Free</strong></td>
+                        <td>0円 / 月 3回まで</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Light (予定)</strong></td>
+                        <td>480円
+                            <span class="ti" data-tip="価格はPhase1の拡散特化のため暫定です。Phase2以降で見直します。">ⓘ</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Pro Personal (予定)</strong></td>
+                        <td>980円</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p style="font-size: 12px; color: var(--text-muted); margin-top: 32px;">
+                ※Phase1公開版の収益はすべて解析精度の向上およびサーバー維持費に充当されます。
+            </p>
+
+            <div class="hero-ctas" style="justify-content: flex-start; margin-top: 40px;">
+                <button class="btn btn-dark-outline" onclick="navToApp('plans_primary')">無料で今日の診断をはじめる</button>
+            </div>
+        </div>
+    </section>
+
+    <section class="roadmap">
+        <div class="wrap">
+            <div class="roadmap-list">
+                <div class="roadmap-item">Phase 2 設計保持</div>
+                <div class="roadmap-item">
+                    <div class="roadmap-dot"></div> Pro Clinic
+                </div>
+                <div class="roadmap-item">
+                    <div class="roadmap-dot"></div> Academic License
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer style="padding: 100px 0; background: var(--navy); color: rgba(255,255,255,0.5);">
+        <div class="wrap">
+            <div class="grid-2">
+                <div>
+                    <h4 style="color:white; margin-bottom:20px">Z-26 Project Team</h4>
+                    <p style="font-size:13px; max-width: 400px; line-height: 2">
+                        社会的普及、研究データの蓄積、そして専門家市場の確立。私たちは舌診の現代的価値化を追求する研究プロジェクトです。
+                    </p>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 60px;">
+                    <div class="foot">
+                        <h4 style="color:white; margin-bottom:20px; font-size: 14px">Navigation</h4>
+                        <a href="#overview" style="display:block; margin-bottom:12px">研究概要</a>
+                        <a href="#student" style="display:block; margin-bottom:12px">学生プログラム</a>
+                    </div>
+                    <div class="foot">
+                        <h4 style="color:white; margin-bottom:20px; font-size: 14px">Support</h4>
+                        <a href="#" style="display:block; margin-bottom:12px">プライバシー規定</a>
+                        <a href="#" style="display:block; margin-bottom:12px">お問い合わせ</a>
+                    </div>
+                </div>
+            </div>
+            <div
+                style="margin-top: 100px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 32px; font-size: 11px; text-align: center; letter-spacing: 0.05em">
+                © 2026 Z26 RESEARCH PROJECT. NOTO SANS JP. ALL RIGHTS RESERVED.
+            </div>
+        </div>
+    </footer>
+
+    <div class="fixed-cta">
+        <div class="wrap">
+            <div>
+                <div class="fixed-label">研究モニター募集中</div>
+                <div class="fixed-title">無料で今日の診断をはじめる</div>
+            </div>
+            <button class="btn btn-primary" onclick="navToApp('fixed_primary')">はじめる</button>
+        </div>
+    </div>
+
+    <script>
+        function navToApp(ctaName) {
+            const baseUrl = '/app';
+            const params = new URLSearchParams({
+                src: 'lp',
+                cta: ctaName,
+                t: Date.now()
+            });
+            window.location.href = baseUrl + '?' + params.toString();
+        }
+
+        function scrollToId(id) {
+            const el = document.getElementById(id);
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Tooltip mobile handle
+        document.addEventListener('click', function (e) {
+            if (e.target.classList.contains('ti')) {
+                e.target.classList.toggle('active');
+            } else {
+                document.querySelectorAll('.ti').forEach(t => t.classList.remove('active'));
+            }
+        });
+    </script>
+
+</body>
+
+</html>

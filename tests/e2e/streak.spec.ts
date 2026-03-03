@@ -8,7 +8,7 @@ test.describe('Streak Feature (FF_STREAK_V1)', () => {
             window.localStorage.removeItem('FF_STREAK_V1');
             window.localStorage.setItem('z26_streak_days', '5');
         });
-        await page.goto('/');
+        await page.goto('/app/');
 
         // Consent flow
         const agreeCheckbox = page.locator('#agree');
@@ -25,7 +25,7 @@ test.describe('Streak Feature (FF_STREAK_V1)', () => {
             window.localStorage.setItem('FF_STREAK_V1', '1');
             window.localStorage.setItem('z26_streak_days', '5');
         });
-        await page.goto('/');
+        await page.goto('/app/');
 
         // Consent flow
         const agreeCheckbox = page.locator('#agree');
@@ -55,7 +55,7 @@ test.describe('Streak Feature (FF_STREAK_V1)', () => {
             window.localStorage.setItem('z26_streak_days', '2'); // Today will be 3
         });
 
-        await page.goto('/');
+        await page.goto('/app/');
 
         // Consent flow
         const agreeCheckbox = page.locator('#agree');

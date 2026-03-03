@@ -13,7 +13,7 @@
     <meta property="og:description" content="舌のサインから体調のバランスを可視化。研究機関トーンで誠実な観測を支える、公式アカデミックプログラム。" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://z26-project.example.com/" />
-    <meta property="og:image" content="/assets/lab_abstract.png" />
+    <meta property="og:image" content="assets/lab_abstract.png" />
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="icon" href="favicon.ico" type="image/x-icon">
 
@@ -21,7 +21,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap"
         rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
         /* CSS Variables following Design Principles */
@@ -194,7 +193,6 @@
             z-index: 200;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             font-weight: 500;
-            max-width: calc(100vw - 40px);
         }
 
         .ti:hover::after,
@@ -230,18 +228,6 @@
         .btn-primary:hover {
             transform: translateY(-2px);
             box-shadow: 0 12px 24px rgba(24, 183, 165, 0.25);
-        }
-
-        /* Temporary App Restriction Styling */
-        .btn[data-cta] {
-            opacity: 0.95;
-        }
-
-        .btn[data-cta]::after {
-            content: " (準備中)";
-            font-size: 0.8em;
-            margin-left: 4px;
-            opacity: 0.7;
         }
 
         .btn-outline {
@@ -312,7 +298,7 @@
             background: white;
             border: 1px solid var(--border);
             border-radius: 16px;
-            overflow: visible;
+            overflow: hidden;
         }
 
         .overview-table th,
@@ -388,7 +374,7 @@
         }
 
         .student-image {
-            background-image: url('/assets/student_program.png');
+            background-image: url('assets/student_program.png');
             background-size: cover;
             background-position: center;
             min-height: 580px;
@@ -548,68 +534,6 @@
             align-items: center;
         }
 
-        .screenshot-btn {
-            position: fixed;
-            bottom: 100px;
-            right: 24px;
-            width: 44px;
-            height: 44px;
-            background: var(--navy);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            z-index: 1001;
-            transition: all 0.3s ease;
-        }
-
-        .screenshot-btn:hover {
-            transform: scale(1.1);
-            background: var(--jade);
-        }
-
-        .screenshot-btn svg {
-            width: 20px;
-            height: 20px;
-        }
-
-        .screenshot-btn .tooltip {
-            position: absolute;
-            right: 54px;
-            background: var(--navy);
-            color: white;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 11px;
-            white-space: nowrap;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-            font-weight: 700;
-        }
-
-        .screenshot-btn:hover .tooltip {
-            opacity: 1;
-        }
-
-        .animate-spin {
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            from {
-                transform: rotate(0deg);
-            }
-
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
         .fixed-cta .wrap {
             width: 100%;
             display: flex;
@@ -722,7 +646,7 @@
                     </div>
                 </div>
                 <div class="hero-visual">
-                    <img src="/assets/hero_mockup.png" alt="Z-26 Analysis App Research Mockup"
+                    <img src="assets/hero_mockup.png" alt="Z-26 Analysis App Research Mockup"
                         style="width: 100%; max-width: 320px; display: block; margin: 0 auto; filter: drop-shadow(0 30px 60px rgba(0,0,0,0.5));">
                 </div>
             </div>
@@ -787,14 +711,14 @@
             <p style="margin-bottom: 60px; max-width: 680px; margin-left: auto; margin-right: auto;">
                 研究参加者の使いやすさと、データの正確な記録を両立。解析結果、参加進捗、長期的なトレンド推移を、シンプルかつ誠実なUIで可視化します。
             </p>
-            <img src="/assets/interface_set.png" alt="Z-26 App Interface Set"
+            <img src="assets/interface_set.png" alt="Z-26 App Interface Set"
                 style="width: 100%; max-width: 900px; border-radius: 20px; box-shadow: var(--shadow-subtle);">
         </div>
     </section>
 
     <!-- Student Program (Main Content) -->
     <section id="student"
-        style="background-image: url('/assets/lab_abstract.png'); background-size: cover; background-attachment: fixed; position: relative;">
+        style="background-image: url('assets/lab_abstract.png'); background-size: cover; background-attachment: fixed; position: relative;">
         <div style="position: absolute; inset: 0; background: rgba(255,255,255,0.92); z-index: 1;"></div>
         <div class="wrap" style="position: relative; z-index: 2;">
             <h3 style="text-align: center; font-size: 14px; color: var(--jade); margin-bottom: 12px;">Exclusive Academic
@@ -950,13 +874,6 @@
         </div>
     </footer>
 
-    <button class="screenshot-btn" onclick="captureLP()" id="captureBtn">
-        <span class="tooltip">ページ全体をPNG保存</span>
-        <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path d="M4 5h16v14H4V5zm2 2v10h12V7H6zm3 2h2v2H9V9zm4 0h2v2h-2V9zm-4 4h2v2H9v-2zm4 0h2v2h-2v-2z" />
-        </svg>
-    </button>
-
     <div class="fixed-cta">
         <div class="wrap">
             <div class="fixed-info">
@@ -969,9 +886,15 @@
 
     <script>
         function navToApp(ctaName) {
-            // アプリ公開前のため、一時的に遷移を停止
-            alert("「Z-26 舌解析研究」公式アプリは現在、学生先行テストの最終調整中です。\n一般公開まで今しばらくお待ちください。");
-            console.log('App is currently restricted for Phase1 Student Testing only. CTA:', ctaName);
+            const baseUrl = '/app';
+            const source = 'lp_v4';
+            const params = new URLSearchParams({
+                src: source,
+                cta: ctaName,
+                t: Date.now()
+            });
+            console.log('Navigating to:', baseUrl + '?' + params.toString());
+            window.location.href = baseUrl + '?' + params.toString();
         }
 
         function scrollToId(id) {
@@ -1000,46 +923,6 @@
                 document.querySelectorAll('.ti').forEach(t => t.classList.remove('active'));
             }
         });
-
-        async function captureLP() {
-            const btn = document.getElementById('captureBtn');
-            const originalText = btn.innerHTML;
-
-            try {
-                btn.disabled = true;
-                btn.style.opacity = '0.5';
-                btn.innerHTML = '<span class="tooltip">生成中...</span><svg class="animate-spin" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle></svg>';
-
-                // 一時的にアニメーションや固定要素を調整
-                const fixedCTA = document.querySelector('.fixed-cta');
-                if (fixedCTA) fixedCTA.style.display = 'none';
-                btn.style.display = 'none';
-
-                const canvas = await html2canvas(document.body, {
-                    useCORS: true,
-                    scale: 2, // 高解像度
-                    logging: false,
-                    scrollY: -window.scrollY,
-                    windowWidth: document.documentElement.offsetWidth,
-                    windowHeight: document.documentElement.offsetHeight
-                });
-
-                const link = document.createElement('a');
-                link.download = `Z26_LP_FullWidth_${new Date().toISOString().slice(0, 10)}.png`;
-                link.href = canvas.toDataURL('image/png');
-                link.click();
-
-                if (fixedCTA) fixedCTA.style.display = 'flex';
-                btn.style.display = 'flex';
-            } catch (err) {
-                console.error('Screenshot failed:', err);
-                alert('スクショ生成に失敗しました。コンソールを確認してください。');
-            } finally {
-                btn.disabled = false;
-                btn.style.opacity = '1';
-                btn.innerHTML = originalText;
-            }
-        }
     </script>
 
 </body>

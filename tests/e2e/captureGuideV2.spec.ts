@@ -10,7 +10,7 @@ test.describe('Capture Guide V2 (FF_CAPTURE_GUIDE_V2)', () => {
             window.localStorage.removeItem('DEBUG_AUTO_TEST');
             window.localStorage.removeItem('DUMMY_TONGUE');
         });
-        await page.goto('/');
+        await page.goto('/app/');
 
         // Consent flow
         const agreeCheckbox = page.locator('#agree');
@@ -44,7 +44,7 @@ test.describe('Capture Guide V2 (FF_CAPTURE_GUIDE_V2)', () => {
             window.localStorage.removeItem('DEBUG_AUTO_TEST');
             window.localStorage.removeItem('DUMMY_TONGUE');
         });
-        await page.goto('/');
+        await page.goto('/app/');
 
         // Consent flow
         const agreeCheckbox = page.locator('#agree');

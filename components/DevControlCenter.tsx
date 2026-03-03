@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { ALL_FLAGS, setLatestDevFlags, clearAllDevFlags, FLAGS_LATEST_VERSION } from '../utils/featureFlags';
+import { ResearchDebugPanel } from './ResearchDebugPanel';
 
 export const DevControlCenter: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [flagStates, setFlagStates] = useState<Record<string, string | null>>({});
     const [profileVersion, setProfileVersion] = useState<string | null>(null);
+    const [planType, setPlanType] = useState<string>('light');
     const [showToast, setShowToast] = useState(false);
 
     // Only render in DEV
-    if (!import.meta.env.DEV) {
+    if (!import.meta.env.DEV || import.meta.env.MODE === 'production' || process.env.NODE_ENV === 'production') {
         return null;
     }
 
@@ -21,6 +23,7 @@ export const DevControlCenter: React.FC = () => {
             });
             setFlagStates(currentStates);
             setProfileVersion(window.localStorage.getItem('DEV_FLAGS_PROFILE'));
+            setPlanType(window.localStorage.getItem('PLAN_TYPE') || 'light');
         }
     }, [isOpen]);
 
@@ -118,6 +121,36 @@ export const DevControlCenter: React.FC = () => {
                             </button>
                         </div>
 
+                        {/* Plan Toggle */}
+                        <div className="bg-slate-800/80 p-3 rounded-xl border border-slate-700">
+                            <h4 className="text-[10px] uppercase font-bold text-blue-400 mb-2 tracking-widest flex items-center justify-between">
+                                🛡️ Plan Selection
+                                <span className="bg-blue-900/40 text-blue-400 px-1.5 py-0.5 rounded text-[8px] font-mono">{planType}</span>
+                            </h4>
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={() => {
+                                        window.localStorage.setItem('PLAN_TYPE', 'light');
+                                        setPlanType('light');
+                                        window.location.reload();
+                                    }}
+                                    className={`flex-1 py-1.5 rounded text-[10px] font-bold transition-all border ${planType === 'light' ? 'bg-blue-600 text-white border-blue-500' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-600'}`}
+                                >
+                                    Light
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        window.localStorage.setItem('PLAN_TYPE', 'pro_personal');
+                                        setPlanType('pro_personal');
+                                        window.location.reload();
+                                    }}
+                                    className={`flex-1 py-1.5 rounded text-[10px] font-bold transition-all border ${planType === 'pro_personal' ? 'bg-blue-600 text-white border-blue-500' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-600'}`}
+                                >
+                                    Pro Personal
+                                </button>
+                            </div>
+                        </div>
+
                         {/* List */}
                         <div>
                             <h4 className="text-[10px] uppercase font-bold text-slate-500 mb-2 tracking-widest border-b border-slate-800 pb-1">Current Feature Flags</h4>
@@ -147,6 +180,11 @@ export const DevControlCenter: React.FC = () => {
                                     ))}
                                 </tbody>
                             </table>
+                        </div>
+
+                        {/* Research Debug Panel Section */}
+                        <div className="bg-slate-900 border border-slate-700/50 rounded-xl p-3 shadow-inner">
+                            <ResearchDebugPanel />
                         </div>
                     </div>
                 </div>

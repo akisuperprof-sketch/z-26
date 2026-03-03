@@ -60,9 +60,21 @@ const HearingScreen: React.FC<HearingScreenProps> = ({ onNext, onBack }) => {
 
   return (
     <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 animate-fade-in relative max-w-2xl w-full mx-auto">
-      <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-brand-primary">追加のヒアリング</h2>
-        <p className="text-sm text-slate-500 mt-2">より正確な証判定のため、現在の体調についてお答えください。<br />（わからない場合は「わからない」を選択してください）</p>
+      {/* Progress Bar Header */}
+      <div className="mb-8">
+        <div className="flex justify-between items-end mb-2">
+          <h2 className="text-xl font-black text-slate-800 tracking-tight">体調ヒアリング</h2>
+          <span className="text-xs font-bold text-brand-primary bg-blue-50 px-3 py-1 rounded-full border border-blue-100">
+            進捗: {answeredCount} / {HEARING_QUESTIONS.length}
+          </span>
+        </div>
+        <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+          <div
+            className="h-full bg-brand-primary transition-all duration-500 ease-out"
+            style={{ width: `${(answeredCount / HEARING_QUESTIONS.length) * 100}%` }}
+          />
+        </div>
+        <p className="text-[10px] text-slate-400 mt-3 font-medium">※現在の体質バランスをより正確に観測するため、可能な範囲でお答えください。</p>
       </div>
 
       {validationError && (
@@ -72,7 +84,7 @@ const HearingScreen: React.FC<HearingScreenProps> = ({ onNext, onBack }) => {
         </div>
       )}
 
-      <div className="h-96 overflow-y-auto mb-6 pr-2 custom-scrollbar">
+      <div className="h-96 overflow-y-auto mb-6 pr-2 custom-scrollbar space-y-2" id="hearing-list">
         {HEARING_QUESTIONS.map(q => (
           <HearingSlider
             key={q.id}
@@ -83,34 +95,55 @@ const HearingScreen: React.FC<HearingScreenProps> = ({ onNext, onBack }) => {
         ))}
       </div>
 
+      {/* Helper for long lists: jump to next unanswered */}
+      {unansweredCount > 0 && answeredCount > 0 && (
+        <button
+          onClick={() => {
+            const nextUnanswered = HEARING_QUESTIONS.find(q => answers[q.id] === undefined);
+            if (nextUnanswered) {
+              const el = document.getElementById(`q-${nextUnanswered.id}`);
+              el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+          }}
+          className="w-full mb-6 py-2 border border-dashed border-slate-200 rounded-lg text-[10px] font-bold text-slate-400 hover:bg-slate-50 transition-colors"
+        >
+          ↓ 未回答の設問へジャンプ
+        </button>
+      )}
+
       <div className="flex flex-col sm:flex-row gap-4">
         <button
           onClick={onBack}
-          className="w-full sm:w-1/3 bg-white text-slate-700 font-bold py-3 px-4 rounded-lg border border-slate-300 hover:bg-slate-50 shadow-sm"
+          className="w-full sm:w-1/3 bg-white text-slate-500 font-bold py-3 px-4 rounded-xl border border-slate-200 hover:bg-slate-50 transition-colors"
         >
           戻る
         </button>
         {unansweredCount > 0 && (
           <button
             onClick={handleNext}
-            className="w-full sm:w-2/3 bg-brand-primary text-white font-bold py-3 px-4 rounded-lg hover:opacity-90 shadow-sm relative group overflow-hidden transition-opacity"
+            className="w-full sm:w-2/3 bg-slate-800 text-white font-bold py-3 px-4 rounded-xl hover:opacity-90 shadow-sm transition-opacity flex items-center justify-center gap-2"
           >
-            未回答ありのまま進む
-            <div className="absolute inset-0 bg-yellow-400 opacity-20 group-hover:opacity-30 transition-opacity" />
+            一部未回答のまま次へ
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
           </button>
         )}
         {unansweredCount === 0 && (
           <button
             onClick={handleNext}
-            className="w-full sm:w-2/3 bg-brand-primary text-white font-bold py-3 px-4 rounded-lg hover:opacity-90 shadow-sm transition-opacity"
+            className="w-full sm:w-2/3 bg-brand-primary text-white font-bold py-3 px-4 rounded-xl hover:opacity-90 shadow-lg shadow-blue-500/20 transition-all transform active:scale-[0.98] flex items-center justify-center gap-2"
           >
-            次へ進む
+            解析を開始する
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
           </button>
         )}
       </div>
 
       {!isComplete && (
-        <p className="text-center text-xs text-slate-400 mt-3">未回答の設問はAIの判定対象から除外され、舌画像への比重が高まります。</p>
+        <p className="text-center text-[10px] text-slate-400 mt-4 leading-relaxed font-medium">未回答の項目は、舌画像からの観測データで補完されます。<br />可能な限り回答することで、より多角的な分析結果が得られます。</p>
       )}
     </div>
   );

@@ -67,6 +67,11 @@ export const analyzePro = async (
         stats: {
             answered: Object.keys(hearingAnswers).length,
             total: 20
+        },
+        axes: {
+            xuShi: coreOutput.axes.X_final,
+            heatCold: coreOutput.axes.Y_final,
+            zaoShi: coreOutput.axes.Z_final
         }
     };
 

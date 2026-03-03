@@ -11,7 +11,7 @@ test.describe('Diagnostic Flow Regression', () => {
             window.localStorage.setItem('DEBUG_PANEL_OPEN', 'true');
         });
 
-        await page.goto('/');
+        await page.goto('/app/');
 
         // Handle Disclaimer if visible
         const agreeCheckbox = page.locator('#agree');
@@ -36,14 +36,14 @@ test.describe('Diagnostic Flow Regression', () => {
     });
 
     test('should enforce Noto Sans JP font family', async ({ page }) => {
-        await page.goto('/');
+        await page.goto('/app/');
         const body = page.locator('body');
         const fontFamily = await body.evaluate((el) => window.getComputedStyle(el).fontFamily);
         expect(fontFamily).toContain('Noto Sans JP');
     });
 
     test('should protect admin routes from unauthorized access', async ({ page }) => {
-        await page.goto('/');
+        await page.goto('/app/');
         await page.evaluate(() => localStorage.removeItem('IS_ADMIN'));
 
         // Check that we can't see the Admin Dashboard heading
@@ -56,7 +56,7 @@ test.describe('Diagnostic Flow Regression', () => {
             window.localStorage.setItem('DEBUG_AUTO_TEST', 'v1');
             window.localStorage.setItem('DUMMY_TONGUE', 'true');
         });
-        await page.goto('/');
+        await page.goto('/app/');
         const agreeCheckbox = page.locator('#agree');
         if (await agreeCheckbox.isVisible()) {
             await agreeCheckbox.check();
@@ -73,7 +73,7 @@ test.describe('Development Tools & Guards', () => {
             window.localStorage.setItem('DUMMY_TONGUE', 'true');
             window.localStorage.setItem('DEBUG_MODE', 'true');
         });
-        await page.goto('/');
+        await page.goto('/app/');
         // The badge should be visible (as it's DEV mode in local test)
         // Check for exact text DUMMY in the header area or similar
         await expect(page.getByText('DUMMY', { exact: true })).toBeVisible();

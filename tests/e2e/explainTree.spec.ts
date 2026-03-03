@@ -9,7 +9,7 @@ test.describe('Explain Tree v1 (FF_EXPLAIN_TREE_V1)', () => {
             window.localStorage.removeItem('FF_EXPLAIN_TREE_V1');
             window.localStorage.setItem('DEV_FEATURES', 'true'); // Optional check
         });
-        await page.goto('/admin/report');
+        await page.goto('/app/admin/report');
 
         // Check button absence
         await expect(page.locator('text=Explain Tree (v1 推論構造の可視化)')).not.toBeVisible();
@@ -51,7 +51,7 @@ test.describe('Explain Tree v1 (FF_EXPLAIN_TREE_V1)', () => {
             });
         });
 
-        await page.goto('/admin/report');
+        await page.goto('/app/admin/report');
 
         // Check for section
         const sectionHeader = page.locator('text=Explain Tree (v1 推論構造の可視化)');

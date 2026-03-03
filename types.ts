@@ -50,6 +50,11 @@ export interface AnalysisV2Payload {
     answered: number;
     total: number;
   };
+  axes?: {
+    xuShi: number;    // X_final
+    heatCold: number; // Y_final
+    zaoShi: number;   // Z_final
+  };
 }
 
 export enum AppState {
@@ -145,6 +150,7 @@ export interface UserInfo {
   height: number | '';
   weight: number | '';
   concerns: string;
+  age_range?: string; // Added for Research Mode
   answers?: Record<string, any>; // For extra questionnaire answers
 }
 
@@ -159,3 +165,5 @@ export interface HistoryRecord {
     base64: string;
   }[];
 }
+
+export type PlanType = 'light' | 'pro_personal';

@@ -11,7 +11,7 @@ import StreakBadge from './components/StreakBadge';
 import FindingsDictionaryScreen from './components/FindingsDictionaryScreen';
 import SettingsModal from './components/SettingsModal';
 import ImageQualityGateScreen from './components/ImageQualityGateScreen';
-import { AnalysisMode, AppState, DiagnosisResult, FindingResult, UploadedImage, UserInfo, Gender, ImageSlot } from './types';
+import { AnalysisMode, AppState, DiagnosisResult, FindingResult, UploadedImage, UserInfo, Gender, ImageSlot, PlanType } from './types';
 import { routeTongueAnalysis } from './services/tongueAnalyzerRouter';
 import { analyzeImageQuality } from './utils/imageQualityAnalyzer';
 import { saveHistory, getHistoryItem, reconstructFindings, reconstructImages, saveLastUserInfo } from './services/historyService';
@@ -40,6 +40,15 @@ const App: React.FC = () => {
   const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([]);
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
+  const [planType, setPlanType] = useState<PlanType>(() => {
+    if (typeof window !== 'undefined') {
+      return (localStorage.getItem('PLAN_TYPE') as PlanType) || 'light';
+    }
+    return 'light';
+  });
+
+  // Research Logging Dedupe Ref
+  const sentResearchHashes = React.useRef<Set<string>>(new Set());
 
   // Settings & Dev Mode
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -108,23 +117,34 @@ const App: React.FC = () => {
     }
 
     const handleLocationCheck = () => {
-      if (window.location.pathname === '/dev/settings') {
+      const path = window.location.pathname;
+      if (path.endsWith('/dev/settings')) {
         setAppState(AppState.DevSettings);
-      } else if (window.location.pathname === '/admin/report') {
+      } else if (path.endsWith('/admin/report')) {
         setAppState(AppState.AdminDashboard);
       } else if (window.location.hash === '#dev-settings') {
-        window.history.replaceState(null, '', '/dev/settings');
+        const newPath = path.includes('/app') ? '/app/dev/settings' : '/dev/settings';
+        window.history.replaceState(null, '', newPath);
         setAppState(AppState.DevSettings);
       }
     };
     window.addEventListener('popstate', handleLocationCheck);
     window.addEventListener('hashchange', handleLocationCheck);
     handleLocationCheck();
+
+    // Plan Type Sync Effect
+    const handlePlanUpdate = () => {
+      const stored = localStorage.getItem('PLAN_TYPE') as PlanType;
+      if (stored && stored !== planType) setPlanType(stored);
+    };
+    window.addEventListener('storage', handlePlanUpdate);
+
     return () => {
       window.removeEventListener('popstate', handleLocationCheck);
       window.removeEventListener('hashchange', handleLocationCheck);
+      window.removeEventListener('storage', handlePlanUpdate);
     };
-  }, []);
+  }, [planType, appState]);
 
   // History Handlers
   const handleHistoryClick = useCallback(() => {
@@ -332,21 +352,32 @@ const App: React.FC = () => {
         if (isResearchModeEnabled && isAgreed && payload) {
           const doResearchLog = async () => {
             try {
-              // Deduplication Guard: Prevent double-send for the same result within 10s
-              const resultHash = `${payload.diagnosis.top1_id}_${payload.guard.level}_${Math.floor(Date.now() / 10000)}`;
+              // Deduplication Guard: Prevent double-send for the same result within 60s
+              const resultHash = `${payload.diagnosis.top1_id}_${payload.guard.level}_${Math.floor(Date.now() / 60000)}`;
               const lastSentHash = sessionStorage.getItem('z26_research_last_sent_hash');
-              if (lastSentHash === resultHash) return;
+
+              if (lastSentHash === resultHash || sentResearchHashes.current.has(resultHash)) {
+                return;
+              }
+
+              // Mark as sent immediately (both in Ref and Storage)
+              sentResearchHashes.current.add(resultHash);
+              sessionStorage.setItem('z26_research_last_sent_hash', resultHash);
 
               const { getAnonymousUserId } = await import('./utils/anonymousId');
               const anonId = getAnonymousUserId();
 
               // 1. Get Token securely
               const tokenRes = await fetch('/api/token', { method: 'POST' });
-              if (!tokenRes.ok) return;
+              if (!tokenRes.ok) {
+                // If token fails, maybe allow retry? For now, just clear hash if we really want to retry, 
+                // but let's just keep it simple.
+                return;
+              }
               const { token } = await tokenRes.json();
 
               // 2. Safe non-blocking fetch
-              const res = await fetch('/api/research', {
+              await fetch('/api/research', {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
@@ -360,13 +391,10 @@ const App: React.FC = () => {
                   is_dummy: localStorage.getItem('DUMMY_TONGUE') === 'true',
                   app_version: '1.2.1',
                   output_version: payload.output_version,
+                  age_range: userInfo?.age_range || null,
                   payload: payload
                 })
               });
-
-              if (res.ok) {
-                sessionStorage.setItem('z26_research_last_sent_hash', resultHash);
-              }
             } catch (err) {
               console.error('Research logging failed silently:', err);
             }
@@ -415,8 +443,11 @@ const App: React.FC = () => {
         return analysisResult ? (
           <ResultsScreen
             result={analysisResult}
-            onRestart={handleRestart}
             uploadedImages={uploadedImages}
+            userInfo={userInfo}
+            planType={planType}
+            onHistoryClick={handleHistoryClick}
+            onRestart={handleRestart}
             onOpenDictionary={handleOpenDictionary}
             plan={currentEffectivePlan}
           />

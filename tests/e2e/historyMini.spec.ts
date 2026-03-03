@@ -10,7 +10,7 @@ test.describe('History Mini V1 (FF_HISTORY_MINI_V1)', () => {
             window.localStorage.setItem('DEBUG_AUTO_TEST', 'v1');
             window.localStorage.setItem('DUMMY_TONGUE', 'true');
         });
-        await page.goto('/');
+        await page.goto('/app/');
 
         // Consent flow
         const agreeCheckbox = page.locator('#agree');
@@ -40,7 +40,7 @@ test.describe('History Mini V1 (FF_HISTORY_MINI_V1)', () => {
             window.localStorage.setItem('DEBUG_AUTO_TEST', 'v1');
             window.localStorage.setItem('DUMMY_TONGUE', 'true');
         });
-        await page.goto('/');
+        await page.goto('/app/');
 
         // Consent flow
         const agreeCheckbox = page.locator('#agree');

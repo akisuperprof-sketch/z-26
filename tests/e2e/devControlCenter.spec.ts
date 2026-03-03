@@ -4,13 +4,13 @@ import { ALL_FLAGS, FLAGS_LATEST_VERSION } from '../../utils/featureFlags';
 test.describe('Dev Control Center', () => {
 
     test('renders only in development environment', async ({ page }) => {
-        await page.goto('/');
+        await page.goto('/app/');
         const devButton = page.locator('button[title="開発者用コントロールセンターを開く"]');
         await expect(devButton).toBeVisible();
     });
 
     test('opens the panel and lists current flags', async ({ page }) => {
-        await page.goto('/');
+        await page.goto('/app/');
         await page.evaluate(() => {
             window.localStorage.clear();
             window.localStorage.setItem('FF_PHASE1_STORY_V1', '1');
@@ -25,7 +25,7 @@ test.describe('Dev Control Center', () => {
     });
 
     test('sets all latest flags when "Enable Latest Features" is clicked', async ({ page }) => {
-        await page.goto('/');
+        await page.goto('/app/');
         await page.evaluate(() => {
             window.localStorage.clear();
         });
@@ -52,7 +52,7 @@ test.describe('Dev Control Center', () => {
     });
 
     test('clears all flags when "Clear All Flags" is clicked', async ({ page }) => {
-        await page.goto('/');
+        await page.goto('/app/');
         await page.evaluate(() => {
             window.localStorage.setItem('FF_PHASE1_STORY_V1', '1');
             window.localStorage.setItem('DUMMY_TONGUE', 'true');

@@ -52,17 +52,44 @@ const DisclaimerScreen: React.FC<DisclaimerScreenProps> = ({ onAgree }) => {
           <p>緊急の場合は、直ちに救急医療機関に連絡してください。</p>
         </div>
 
-        <div className="flex items-center justify-center">
-          <input
-            id="agree"
-            type="checkbox"
-            checked={isChecked}
-            onChange={() => setIsChecked(!isChecked)}
-            className="h-5 w-5 rounded border-slate-300 text-brand-primary focus:ring-brand-primary cursor-pointer"
-          />
-          <label htmlFor="agree" className="ml-3 text-sm text-slate-700 cursor-pointer select-none">
-            上記の内容を理解し、同意します
-          </label>
+        <div className="flex flex-col items-center justify-center space-y-4">
+          <div className="flex items-center">
+            <input
+              id="agree"
+              type="checkbox"
+              checked={isChecked}
+              onChange={() => setIsChecked(!isChecked)}
+              className="h-5 w-5 rounded border-slate-300 text-brand-primary focus:ring-brand-primary cursor-pointer"
+            />
+            <label htmlFor="agree" className="ml-3 text-sm text-slate-700 cursor-pointer select-none">
+              上記の内容を理解し、同意します
+            </label>
+          </div>
+
+          {/* Research Mode Toggle (DEV ONLY) */}
+          {import.meta.env.DEV && localStorage.getItem('IS_RESEARCH_MODE') === 'true' && (
+            <div className="bg-blue-50/50 p-4 rounded-xl border border-blue-100 w-full max-w-sm">
+              <div className="flex items-center">
+                <input
+                  id="research-agreed"
+                  type="checkbox"
+                  defaultChecked={localStorage.getItem('RESEARCH_AGREED') === 'true' || localStorage.getItem('IS_RESEARCH_MODE') === 'true'}
+                  onChange={(e) => {
+                    localStorage.setItem('RESEARCH_AGREED', e.target.checked ? 'true' : 'false');
+                    localStorage.setItem('IS_RESEARCH_MODE', 'true'); // Flag to indicate we want to log
+                  }}
+                  className="h-4 w-4 rounded border-blue-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                />
+                <label htmlFor="research-agreed" className="ml-3 text-xs text-blue-800 cursor-pointer select-none font-black flex items-center">
+                  🧪 研究モード (任意)
+                  <span className="ml-2 bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded text-[8px] uppercase">Dev Only</span>
+                </label>
+              </div>
+              <p className="text-[10px] text-blue-600/70 mt-1 ml-7">
+                解析結果を匿名ログとしてSupabaseに保存します。研究目的のデータ蓄積にご協力ください。
+              </p>
+            </div>
+          )}
         </div>
 
         <button

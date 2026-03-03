@@ -8,7 +8,20 @@ export default defineConfig(({ mode }) => {
     server: {
       host: '0.0.0.0',
     },
-    plugins: [react()],
+    plugins: [
+      react(),
+      {
+        name: 'rewrite-middleware',
+        configureServer(server) {
+          server.middlewares.use((req, res, next) => {
+            if (req.url && req.url.startsWith('/app')) {
+              req.url = '/app/index.html';
+            }
+            next();
+          });
+        }
+      }
+    ],
     define: {
       'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
       'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY)
@@ -16,6 +29,14 @@ export default defineConfig(({ mode }) => {
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),
+      }
+    },
+    build: {
+      rollupOptions: {
+        input: {
+          main: path.resolve(__dirname, 'index.html')
+          // app: path.resolve(__dirname, 'app/index.html') // LPのみデプロイするため一旦コメントアウト
+        }
       }
     }
   };

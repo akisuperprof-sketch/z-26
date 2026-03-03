@@ -10,6 +10,7 @@ interface UserInfoScreenProps {
 
 const UserInfoScreen: React.FC<UserInfoScreenProps> = ({ onNext }) => {
   const [age, setAge] = useState<number | ''>('');
+  const [ageRange, setAgeRange] = useState<string | null>(null);
   const [gender, setGender] = useState<Gender | null>(null);
   const [height, setHeight] = useState<number | ''>('');
   const [weight, setWeight] = useState<number | ''>('');
@@ -33,6 +34,7 @@ const UserInfoScreen: React.FC<UserInfoScreenProps> = ({ onNext }) => {
         setHeight(info.height);
         setWeight(info.weight);
         setConcerns(info.concerns);
+        if (info.age_range) setAgeRange(info.age_range);
         if (info.answers) setExtraAnswers(info.answers);
       }
     });
@@ -40,7 +42,7 @@ const UserInfoScreen: React.FC<UserInfoScreenProps> = ({ onNext }) => {
 
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {};
-    if (age === '') newErrors.age = '年齢を入力してください';
+    if (age === '' && !ageRange) newErrors.age = '年齢を入力してください';
     if (!gender) newErrors.gender = '性別を選択してください';
 
     setErrors(newErrors);
@@ -55,6 +57,7 @@ const UserInfoScreen: React.FC<UserInfoScreenProps> = ({ onNext }) => {
         height,
         weight,
         concerns,
+        age_range: ageRange || undefined,
         answers: devEnabled ? extraAnswers : undefined
       });
     }
@@ -130,20 +133,77 @@ const UserInfoScreen: React.FC<UserInfoScreenProps> = ({ onNext }) => {
       <div className="space-y-6">
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-bold text-slate-700 mb-1">
+            <label className="block text-sm font-bold text-slate-700 mb-2">
               年齢 <span className="text-red-500">*</span>
             </label>
-            <input
-              type="tel"
-              name="age"
-              value={age}
-              onChange={(e) => {
-                const val = e.target.value;
-                if (val === '' || /^\d+$/.test(val)) setAge(val === '' ? '' : Number(val));
-              }}
-              className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary outline-none transition-all ${errors.age ? 'border-red-500 bg-red-50' : 'border-slate-300'}`}
-              placeholder="例: 30"
-            />
+            <div className="grid grid-cols-2 gap-2 mb-4">
+              {[
+                { label: '9歳以下', code: 'U09' },
+                { label: '10-14歳', code: '10_14' },
+                { label: '15-19歳', code: '15_19' },
+                { label: '20-24歳', code: '20_24' },
+                { label: '25-29歳', code: '25_29' },
+                { label: '30-34歳', code: '30_34' },
+                { label: '35-39歳', code: '35_39' },
+                { label: '40-44歳', code: '40_44' },
+                { label: '45-49歳', code: '45_49' },
+                { label: '50-54歳', code: '50_54' },
+                { label: '55-59歳', code: '55_59' },
+                { label: '60-64歳', code: '60_64' },
+                { label: '65-69歳', code: '65_69' },
+                { label: '70歳以上', code: '70P' },
+                { label: '回答しない', code: 'NA' },
+              ].map((range) => (
+                <button
+                  key={range.code}
+                  onClick={() => {
+                    setAgeRange(range.code);
+                    // auto-scroll or small delay? user wanted selection focus
+                    if (range.code === 'NA') setAge('');
+                    // Simulate completion of this part
+                  }}
+                  className={`py-2.5 px-3 rounded-xl text-xs font-black transition-all border shadow-sm ${ageRange === range.code
+                    ? 'bg-brand-primary text-white border-brand-primary ring-2 ring-brand-primary/20 scale-[0.98]'
+                    : 'bg-white text-slate-600 border-slate-200 hover:border-brand-primary/30 hover:bg-slate-50'
+                    }`}
+                >
+                  {range.label}
+                </button>
+              ))}
+            </div>
+            <div className="flex items-center gap-3">
+              <input
+                type="tel"
+                name="age"
+                value={age}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === '' || /^\d+$/.test(val)) {
+                    setAge(val === '' ? '' : Number(val));
+                    // auto-guess range if typed
+                    const n = Number(val);
+                    if (val !== '') {
+                      if (n <= 9) setAgeRange('U09');
+                      else if (n <= 14) setAgeRange('10_14');
+                      else if (n <= 19) setAgeRange('15_19');
+                      else if (n <= 24) setAgeRange('20_24');
+                      else if (n <= 29) setAgeRange('25_29');
+                      else if (n <= 34) setAgeRange('30_34');
+                      else if (n <= 39) setAgeRange('35_39');
+                      else if (n <= 44) setAgeRange('40_44');
+                      else if (n <= 49) setAgeRange('45_49');
+                      else if (n <= 54) setAgeRange('50_54');
+                      else if (n <= 59) setAgeRange('55_59');
+                      else if (n <= 64) setAgeRange('60_64');
+                      else if (n <= 69) setAgeRange('65_69');
+                      else setAgeRange('70P');
+                    }
+                  }
+                }}
+                className={`flex-1 p-3 border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-brand-primary outline-none transition-all ${errors.age ? 'border-red-500 bg-red-50' : 'border-slate-300'}`}
+                placeholder="詳細年齢（任意）"
+              />
+            </div>
             {errors.age && <p className="text-red-500 text-xs mt-1">{errors.age}</p>}
           </div>
 

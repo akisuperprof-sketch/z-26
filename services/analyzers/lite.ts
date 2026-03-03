@@ -54,6 +54,11 @@ export const analyzeLite = async (
         stats: {
             answered: Object.keys(userInfo?.answers || {}).length,
             total: 3 // Lite basic questions
+        },
+        axes: {
+            xuShi: 0,
+            heatCold: heatCold.score,
+            zaoShi: 0
         }
     };
 

@@ -10,7 +10,7 @@ test.describe('Phase1 UX V1.5 Features', () => {
             window.localStorage.removeItem('FF_PHASE1_STORY_V1');
         });
 
-        await page.goto('/');
+        await page.goto('/app/');
 
         // Handle Disclaimer if visible
         const agreeCheckbox = page.locator('#agree');
@@ -33,7 +33,7 @@ test.describe('Phase1 UX V1.5 Features', () => {
             window.localStorage.setItem('FF_PHASE1_STORY_V1', '1');
         });
 
-        await page.goto('/');
+        await page.goto('/app/');
 
         // Handle Disclaimer if visible
         const agreeCheckbox = page.locator('#agree');

@@ -1,179 +1,821 @@
 <!doctype html>
 <html lang="ja">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>舌診AI｜App Store風プロダクトページ</title>
+
+  <!-- SEO / OG -->
+  <title>舌診AI α版｜スマホで始める毎日の体調傾向セルフチェック</title>
+  <meta name="description"
+    content="毎日30秒。写真とかんたん問診で、舌のサインから今のバランスをやさしく可視化。研究プロジェクト「Z-26」による学生テスト実施中。医療断定ではなく、日々のセルフケアを支えるガイドです。" />
+  <meta property="og:title" content="舌診AI α版｜スマホで始める毎日の体調傾向セルフチェック" />
+  <meta property="og:description" content="舌で、今日の体調傾向を見える化。研究協力者1000名募集中。" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://z26-project.example.com/" />
+  <meta property="og:image" content="https://z26-project.example.com/ogp.jpg" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+
   <style>
-    :root{
-      --navy:#0e1624;
-      --navy2:#121f33;
-      --off:#f6f4ef;
-      --jade:#18b7a5;
-      --vermilion:#e24b3b;
-      --text:#0b1220;
-      --muted:#5a6b85;
-      --white:#ffffff;
-      --shadow: 0 10px 30px rgba(14,22,36,.16);
-      --shadow2: 0 18px 48px rgba(14,22,36,.24);
+    :root {
+      --navy: #0e1624;
+      --navy2: #121f33;
+      --off: #f6f4ef;
+      --jade: #18b7a5;
+      --vermilion: #e24b3b;
+      --text: #0b1220;
+      --muted: #5a6b85;
+      --white: #ffffff;
+      --shadow: 0 10px 30px rgba(14, 22, 36, .16);
+      --shadow2: 0 18px 48px rgba(14, 22, 36, .24);
       --radius: 18px;
       --radius2: 26px;
       --max: 1080px;
     }
-    *{box-sizing:border-box}
-    html,body{margin:0;padding:0;font-family:"Noto Sans JP", system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif; color:var(--text); background: linear-gradient(180deg, var(--off) 0%, #ffffff 55%, #f4f7fb 100%);}
-    a{color:inherit; text-decoration:none}
-    .wrap{max-width:var(--max); margin:0 auto; padding:0 18px;}
+
+    * {
+      box-sizing: border-box
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Noto Sans JP", system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+      color: var(--text);
+      background: linear-gradient(180deg, var(--off) 0%, #ffffff 55%, #f4f7fb 100%);
+      scroll-behavior: smooth;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none
+    }
+
+    .wrap {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 0 18px;
+    }
 
     /* Top nav */
-    .topbar{position:sticky; top:0; z-index:50; backdrop-filter:saturate(140%) blur(10px); background:rgba(246,244,239,.82); border-bottom:1px solid rgba(14,22,36,.08);}
-    .topbar .in{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 0;}
-    .brand{display:flex; align-items:center; gap:10px;}
-    .logo{width:34px; height:34px; border-radius:12px; background: radial-gradient(circle at 30% 30%, rgba(24,183,165,.9), rgba(14,22,36,.9)); box-shadow: 0 10px 20px rgba(14,22,36,.18);}
-    .brand .name{font-weight:900; letter-spacing:.02em}
-    .nav{display:flex; gap:14px; align-items:center; flex-wrap:wrap; justify-content:flex-end}
-    .nav a{font-size:13px; color:rgba(11,18,32,.82)}
-    .nav a:hover{color:rgba(11,18,32,1)}
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: saturate(140%) blur(10px);
+      background: rgba(246, 244, 239, .82);
+      border-bottom: 1px solid rgba(14, 22, 36, .08);
+    }
+
+    .topbar .in {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 0;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo {
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      background: radial-gradient(circle at 30% 30%, rgba(24, 183, 165, .9), rgba(14, 22, 36, .9));
+      box-shadow: 0 10px 20px rgba(14, 22, 36, .18);
+    }
+
+    .brand .name {
+      font-weight: 900;
+      letter-spacing: .02em
+    }
+
+    .nav {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: flex-end
+    }
+
+    .nav a {
+      font-size: 13px;
+      color: rgba(11, 18, 32, .82)
+    }
+
+    .nav a:hover {
+      color: rgba(11, 18, 32, 1)
+    }
 
     /* Buttons */
-    .btns{display:flex; gap:10px; align-items:center}
-    .btn{border:0; border-radius:999px; padding:11px 14px; font-weight:700; font-size:13px; cursor:pointer; transition:transform .08s ease, box-shadow .18s ease, background .18s ease;}
-    .btn:active{transform:translateY(1px)}
-    .btn.primary{background:linear-gradient(135deg, var(--jade), #2ad7c4); color:var(--navy); box-shadow: 0 12px 26px rgba(24,183,165,.28)}
-    .btn.primary:hover{box-shadow: 0 16px 36px rgba(24,183,165,.34)}
-    .btn.ghost{background:rgba(14,22,36,.06); color:rgba(11,18,32,.92)}
-    .btn.ghost:hover{background:rgba(14,22,36,.09)}
+    .btns {
+      display: flex;
+      gap: 10px;
+      align-items: center
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 999px;
+      padding: 11px 18px;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      transition: transform .08s ease, box-shadow .18s ease, background .18s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .btn:active {
+      transform: translateY(1px)
+    }
+
+    .btn.primary {
+      background: linear-gradient(135deg, var(--jade), #2ad7c4);
+      color: var(--navy);
+      box-shadow: 0 12px 26px rgba(24, 183, 165, .28)
+    }
+
+    .btn.primary:hover {
+      box-shadow: 0 16px 36px rgba(24, 183, 165, .34)
+    }
+
+    .btn.ghost {
+      background: rgba(14, 22, 36, .06);
+      color: rgba(11, 18, 32, .92)
+    }
+
+    .btn.ghost:hover {
+      background: rgba(14, 22, 36, .09)
+    }
+
+    .btn.outline {
+      background: transparent;
+      border: 1px solid var(--jade);
+      color: var(--jade)
+    }
+
+    .btn.outline:hover {
+      background: rgba(24, 183, 165, .05)
+    }
 
     /* Sections */
-    section{padding:44px 0}
-    .card{background:rgba(255,255,255,.92); border:1px solid rgba(14,22,36,.08); border-radius:var(--radius2); box-shadow:var(--shadow);}
-    .grid{display:grid; gap:16px}
-    .two{grid-template-columns:1.1fr .9fr}
-    .three{grid-template-columns:repeat(3, 1fr)}
-    .four{grid-template-columns:repeat(4, 1fr)}
+    section {
+      padding: 44px 0
+    }
 
-    .kicker{display:inline-flex; align-items:center; gap:10px; padding:7px 12px; border-radius:999px; background:rgba(14,22,36,.07); color:rgba(11,18,32,.86); font-weight:700; font-size:12px;}
-    .dot{width:8px; height:8px; border-radius:999px; background:var(--vermilion)}
+    .card {
+      background: rgba(255, 255, 255, .94);
+      border: 1px solid rgba(14, 22, 36, .08);
+      border-radius: var(--radius2);
+      box-shadow: var(--shadow);
+    }
 
-    h1{font-size:42px; line-height:1.16; margin:14px 0 10px 0; letter-spacing:-.01em}
-    h2{font-size:26px; margin:0 0 10px 0; letter-spacing:-.01em}
-    h3{font-size:18px; margin:0 0 8px 0}
-    p{margin:0; color:rgba(11,18,32,.78); line-height:1.75}
-    .lead{font-size:15px; color:rgba(11,18,32,.76)}
-    .muted{color:rgba(11,18,32,.62)}
+    .grid {
+      display: grid;
+      gap: 16px
+    }
+
+    .two {
+      grid-template-columns: 1.1fr .9fr
+    }
+
+    .three {
+      grid-template-columns: repeat(3, 1fr)
+    }
+
+    .four {
+      grid-template-columns: repeat(4, 1fr)
+    }
+
+    .kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: rgba(14, 22, 36, .07);
+      color: rgba(11, 18, 32, .86);
+      font-weight: 700;
+      font-size: 12px;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--vermilion)
+    }
+
+    h1 {
+      font-size: 42px;
+      line-height: 1.16;
+      margin: 14px 0 10px 0;
+      letter-spacing: -.01em
+    }
+
+    h2 {
+      font-size: 26px;
+      margin: 0 0 10px 0;
+      letter-spacing: -.01em
+    }
+
+    h3 {
+      font-size: 18px;
+      margin: 0 0 8px 0
+    }
+
+    p {
+      margin: 0;
+      color: rgba(11, 18, 32, .78);
+      line-height: 1.75
+    }
+
+    .lead {
+      font-size: 15px;
+      color: rgba(11, 18, 32, .76)
+    }
+
+    .muted {
+      color: rgba(11, 18, 32, .62)
+    }
 
     /* Hero */
-    .hero{padding:36px 0 20px 0}
-    .heroBox{padding:24px; border-radius:28px; background: radial-gradient(1200px 400px at 30% 10%, rgba(24,183,165,.18), transparent 60%), radial-gradient(900px 340px at 80% 30%, rgba(226,75,59,.16), transparent 60%), linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.80)); border:1px solid rgba(14,22,36,.08); box-shadow:var(--shadow2)}
-    .heroInner{display:grid; grid-template-columns:1.2fr .8fr; gap:18px; align-items:stretch}
-    .heroBullets{display:grid; gap:10px; margin-top:14px}
-    .pill{display:flex; gap:10px; align-items:flex-start; padding:12px 12px; border-radius:16px; background:rgba(14,22,36,.04); border:1px solid rgba(14,22,36,.06)}
-    .pill .ic{width:26px; height:26px; border-radius:10px; background:rgba(24,183,165,.18); display:flex; align-items:center; justify-content:center; color:var(--jade); font-weight:900}
-    .heroCtas{display:flex; gap:10px; margin-top:16px; flex-wrap:wrap}
+    .hero {
+      padding: 36px 0 20px 0
+    }
 
-    .badgeRow{display:flex; gap:10px; margin-top:14px; flex-wrap:wrap}
-    .storeBadge{display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:16px; background:linear-gradient(180deg, rgba(14,22,36,.92), rgba(14,22,36,.86)); color:rgba(255,255,255,.92); border:1px solid rgba(255,255,255,.12)}
-    .storeBadge .mini{width:26px; height:26px; border-radius:10px; background:rgba(255,255,255,.12)}
-    .storeBadge .t{display:flex; flex-direction:column; line-height:1.1}
-    .storeBadge .t small{opacity:.78; font-weight:500}
-    .storeBadge .t span{font-weight:800; font-size:13px}
+    .heroBox {
+      padding: 24px;
+      border-radius: 28px;
+      background: radial-gradient(1200px 400px at 30% 10%, rgba(24, 183, 165, .18), transparent 60%), radial-gradient(900px 340px at 80% 30%, rgba(226, 75, 59, .16), transparent 60%), linear-gradient(180deg, rgba(255, 255, 255, .92), rgba(255, 255, 255, .80));
+      border: 1px solid rgba(14, 22, 36, .08);
+      box-shadow: var(--shadow2)
+    }
+
+    .heroInner {
+      display: grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 24px;
+      align-items: center
+    }
+
+    .heroBullets {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px
+    }
+
+    .pill {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 12px 12px;
+      border-radius: 16px;
+      background: rgba(14, 22, 36, .04);
+      border: 1px solid rgba(14, 22, 36, .06)
+    }
+
+    .pill .ic {
+      width: 26px;
+      height: 26px;
+      border-radius: 10px;
+      background: rgba(24, 183, 165, .18);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--jade);
+      font-weight: 900
+    }
+
+    .heroCtas {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+      flex-wrap: wrap
+    }
+
+    .badgeRow {
+      display: flex;
+      gap: 10px;
+      margin-top: 14px;
+      flex-wrap: wrap
+    }
+
+    .storeBadge {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 16px;
+      background: linear-gradient(180deg, rgba(14, 22, 36, .92), rgba(14, 22, 36, .86));
+      color: rgba(255, 255, 255, .92);
+      border: 1px solid rgba(255, 255, 255, .12)
+    }
+
+    .storeBadge .mini {
+      width: 26px;
+      height: 26px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, .12)
+    }
+
+    .storeBadge .t {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.1
+    }
+
+    .storeBadge .t small {
+      opacity: .78;
+      font-weight: 500
+    }
+
+    .storeBadge .t span {
+      font-weight: 800;
+      font-size: 13px
+    }
+
+    /* Table styles for Overview */
+    .overviewTable {
+      width: 100%;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid rgba(14, 22, 36, .08);
+      background: rgba(255, 255, 255, .96);
+      margin-top: 14px;
+    }
+
+    .overviewTable td,
+    .overviewTable th {
+      padding: 12px 16px;
+      font-size: 13px;
+      border-bottom: 1px solid rgba(14, 22, 36, .06)
+    }
+
+    .overviewTable th {
+      background: rgba(14, 22, 36, .04);
+      width: 35%;
+      text-align: left;
+      color: var(--text);
+      font-weight: 900;
+    }
+
+    .overviewTable tr:last-child td,
+    .overviewTable tr:last-child th {
+      border-bottom: 0
+    }
 
     /* Phone mock */
-    .phoneWrap{display:flex; align-items:center; justify-content:center}
-    .phone{width:310px; max-width:100%; border-radius:34px; background:linear-gradient(180deg, var(--navy), var(--navy2)); border:1px solid rgba(255,255,255,.14); box-shadow: 0 24px 60px rgba(14,22,36,.28); padding:14px; position:relative}
-    .phone::before{content:""; position:absolute; top:10px; left:50%; transform:translateX(-50%); width:110px; height:20px; border-radius:999px; background:rgba(255,255,255,.10)}
-    .screen{border-radius:24px; background:linear-gradient(180deg, rgba(246,244,239,.10), rgba(246,244,239,.06)); border:1px solid rgba(255,255,255,.12); padding:12px; overflow:hidden}
-    .screenTop{display:flex; justify-content:space-between; align-items:center; color:rgba(255,255,255,.86); font-size:12px; margin-top:8px}
-    .shotGrid{display:grid; grid-template-columns:1fr; gap:10px; margin-top:10px}
-    .shot{border-radius:18px; background:rgba(255,255,255,.10); border:1px dashed rgba(255,255,255,.18); padding:12px; color:rgba(255,255,255,.86)}
-    .shot .cap{font-size:12px; opacity:.82; margin-top:6px}
-    .shot .ttl{font-weight:900; letter-spacing:.02em}
-    .miniBar{height:8px; border-radius:999px; background:rgba(24,183,165,.28); margin-top:10px}
+    .phoneWrap {
+      display: flex;
+      align-items: center;
+      justify-content: center
+    }
+
+    .phone {
+      width: 310px;
+      max-width: 100%;
+      border-radius: 44px;
+      background: #000;
+      border: 6px solid #222;
+      box-shadow: 0 40px 100px rgba(11, 18, 32, .35);
+      padding: 0px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .phoneInner {
+      padding: 12px;
+      background: linear-gradient(180deg, var(--navy), var(--navy2));
+    }
+
+    .screen {
+      border-radius: 34px;
+      background: var(--off);
+      min-height: 540px;
+      border: 1px solid rgba(255, 255, 255, .12);
+      padding: 0;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .screenTop {
+      height: 40px;
+      background: var(--navy);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.1em
+    }
+
+    .appContent {
+      padding: 16px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .resCard {
+      background: white;
+      border-radius: 16px;
+      padding: 16px;
+      border: 1px solid rgba(14, 22, 36, .08);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, .05);
+    }
+
+    .resScore {
+      font-size: 32px;
+      font-weight: 900;
+      color: var(--jade);
+      text-align: center;
+    }
+
+    .resLabel {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+      text-align: center;
+      margin-bottom: 12px;
+    }
+
+    .resGrid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px
+    }
+
+    .resItem {
+      aspect-ratio: 1;
+      border-radius: 8px;
+      background: var(--off);
+      border: 1px solid rgba(0, 0, 0, .04);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      font-size: 8px;
+      font-weight: 900;
+      color: var(--muted);
+    }
+
+    .resItem.active {
+      background: rgba(24, 183, 165, .1);
+      border-color: var(--jade);
+      color: var(--jade);
+    }
+
+    .resProgress {
+      height: 6px;
+      background: rgba(0, 0, 0, .05);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .resProgressBar {
+      height: 100%;
+      width: 70%;
+      background: var(--jade);
+    }
+
+    .appVisual {
+      width: 100%;
+      height: 80px;
+      background: #e2e8f0;
+      border-radius: 12px;
+      margin-top: auto;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .appVisual::after {
+      content: "Tongue Analysis v2.0";
+      position: absolute;
+      bottom: 8px;
+      right: 8px;
+      font-size: 8px;
+      font-weight: 900;
+      opacity: 0.3;
+    }
 
     /* Social proof */
-    .stats{padding:18px}
-    .statsGrid{display:grid; grid-template-columns:repeat(3, 1fr); gap:12px}
-    .stat{border-radius:18px; padding:14px; background:rgba(14,22,36,.03); border:1px solid rgba(14,22,36,.06)}
-    .stat .num{font-size:22px; font-weight:900}
-    .stat .lbl{font-size:12px; color:rgba(11,18,32,.66)}
+    .stats {
+      padding: 24px
+    }
+
+    .statsGrid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px
+    }
+
+    .stat {
+      border-radius: 18px;
+      padding: 18px;
+      background: rgba(14, 22, 36, .03);
+      border: 1px solid rgba(14, 22, 36, .06);
+      text-align: center;
+    }
+
+    .stat .num {
+      font-size: 24px;
+      font-weight: 900;
+      color: var(--jade)
+    }
+
+    .stat .lbl {
+      font-size: 12px;
+      color: rgba(11, 18, 32, .66);
+      margin-top: 4px
+    }
 
     /* Lists as tables */
-    table{width:100%; border-collapse:separate; border-spacing:0; overflow:hidden; border-radius:18px; border:1px solid rgba(14,22,36,.10); background:rgba(255,255,255,.94)}
-    th, td{padding:12px 12px; border-bottom:1px solid rgba(14,22,36,.08); vertical-align:top}
-    th{background:rgba(14,22,36,.04); text-align:left; font-size:13px}
-    td{font-size:14px; color:rgba(11,18,32,.80)}
-    tr:last-child th, tr:last-child td{border-bottom:0}
+    table:not(.overviewTable) {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      overflow: hidden;
+      border-radius: 18px;
+      border: 1px solid rgba(14, 22, 36, .10);
+      background: rgba(255, 255, 255, .94)
+    }
+
+    th,
+    td {
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(14, 22, 36, .08);
+      vertical-align: top
+    }
+
+    th {
+      background: rgba(14, 22, 36, .04);
+      text-align: left;
+      font-size: 13px
+    }
+
+    td {
+      font-size: 14px;
+      color: rgba(11, 18, 32, .80)
+    }
+
+    tr:last-child th,
+    tr:last-child td {
+      border-bottom: 0
+    }
 
     /* Cards in grids */
-    .feature{padding:18px}
-    .tag{display:inline-flex; align-items:center; gap:8px; padding:7px 10px; border-radius:999px; background:rgba(24,183,165,.12); color:rgba(14,22,36,.88); font-weight:800; font-size:12px;}
-    .tag .b{width:7px; height:7px; border-radius:999px; background:var(--jade)}
+    .feature {
+      padding: 24px
+    }
 
-    .steps{padding:18px}
-    .step{display:flex; gap:12px; align-items:flex-start; padding:12px 12px; border-radius:18px; background:rgba(14,22,36,.03); border:1px solid rgba(14,22,36,.06)}
-    .no{min-width:34px; height:34px; border-radius:14px; background:rgba(226,75,59,.14); color:rgba(14,22,36,.92); display:flex; align-items:center; justify-content:center; font-weight:900}
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(24, 183, 165, .12);
+      color: rgba(14, 22, 36, .88);
+      font-weight: 800;
+      font-size: 12px;
+    }
 
-    .results{padding:18px}
-    .chip{display:inline-flex; align-items:center; gap:8px; padding:8px 10px; border-radius:999px; background:rgba(14,22,36,.06); font-weight:800; font-size:12px}
-    .chip i{width:8px; height:8px; border-radius:999px; background:var(--vermilion); display:inline-block}
+    .tag .b {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: var(--jade)
+    }
 
-    .ctaBand{padding:18px; display:flex; gap:14px; align-items:center; justify-content:space-between; flex-wrap:wrap}
-    .ctaBand .txt{display:flex; flex-direction:column; gap:4px}
+    .steps {
+      padding: 24px
+    }
 
-    footer{padding:28px 0 40px 0; color:rgba(11,18,32,.62)}
-    .footGrid{display:grid; grid-template-columns:2fr 1fr 1fr; gap:12px}
-    .foot a{display:block; padding:8px 0; color:rgba(11,18,32,.74); font-size:13px}
-    .foot a:hover{color:rgba(11,18,32,1)}
+    .step {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      padding: 16px;
+      border-radius: 18px;
+      background: rgba(14, 22, 36, .03);
+      border: 1px solid rgba(14, 22, 36, .06)
+    }
+
+    .no {
+      min-width: 34px;
+      height: 34px;
+      border-radius: 14px;
+      background: rgba(226, 75, 59, .14);
+      color: rgba(14, 22, 36, .92);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900
+    }
+
+    .results {
+      padding: 24px
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: rgba(14, 22, 36, .06);
+      font-weight: 800;
+      font-size: 12px
+    }
+
+    .chip i {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--vermilion);
+      display: inline-block
+    }
+
+    .ctaBand {
+      padding: 20px;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap
+    }
+
+    .ctaBand .txt {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex: 1;
+      min-width: 280px;
+    }
+
+    footer {
+      padding: 40px 0 60px 0;
+      color: rgba(11, 18, 32, .62);
+      background: rgba(14, 22, 36, .02);
+      border-top: 1px solid rgba(0, 0, 0, .05)
+    }
+
+    .footGrid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 24px
+    }
+
+    .foot a {
+      display: block;
+      padding: 8px 0;
+      color: rgba(11, 18, 32, .74);
+      font-size: 13px
+    }
+
+    .foot a:hover {
+      color: rgba(11, 18, 32, 1)
+    }
 
     /* Responsive */
-    @media (max-width: 920px){
-      .heroInner{grid-template-columns:1fr;}
-      .two{grid-template-columns:1fr}
-      .three{grid-template-columns:1fr}
-      .four{grid-template-columns:1fr 1fr}
-      h1{font-size:34px}
-      .statsGrid{grid-template-columns:1fr}
-      .footGrid{grid-template-columns:1fr}
-      .nav{display:none}
+    @media (max-width: 920px) {
+      .heroInner {
+        grid-template-columns: 1fr;
+      }
+
+      .two {
+        grid-template-columns: 1fr
+      }
+
+      .three {
+        grid-template-columns: 1fr
+      }
+
+      .four {
+        grid-template-columns: 1fr 1fr
+      }
+
+      h1 {
+        font-size: 34px
+      }
+
+      .statsGrid {
+        grid-template-columns: 1fr
+      }
+
+      .footGrid {
+        grid-template-columns: 1fr
+      }
+
+      .nav {
+        display: none
+      }
+
+      .heroCtas {
+        justify-content: center
+      }
+
+      h2 {
+        font-size: 22px
+      }
     }
-    @media (max-width: 520px){
-      section{padding:34px 0}
-      .heroBox{padding:18px}
-      .four{grid-template-columns:1fr}
+
+    @media (max-width: 520px) {
+      section {
+        padding: 34px 0
+      }
+
+      .heroBox {
+        padding: 18px
+      }
+
+      .four {
+        grid-template-columns: 1fr
+      }
+
+      .phone {
+        width: 100%;
+      }
     }
 
     /* Anchors offset for sticky */
-    .anchor{scroll-margin-top:74px}
+    .anchor {
+      scroll-margin-top: 74px
+    }
 
     /* Fixed mobile CTA */
-    .fixedCta{position:fixed; left:0; right:0; bottom:0; padding:12px 12px; background:rgba(246,244,239,.92); border-top:1px solid rgba(14,22,36,.10); backdrop-filter:saturate(140%) blur(10px); z-index:60}
-    .fixedCta .in{max-width:var(--max); margin:0 auto; display:flex; gap:10px; align-items:center; justify-content:space-between}
-    .fixedCta .label{font-size:12px; color:rgba(11,18,32,.70)}
-    .fixedCta .btn{padding:11px 14px}
+    .fixedCta {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 12px 18px;
+      background: rgba(246, 244, 239, .95);
+      border-top: 1px solid rgba(14, 22, 36, .10);
+      backdrop-filter: saturate(140%) blur(12px);
+      z-index: 100;
+      box-shadow: 0 -10px 30px rgba(11, 18, 32, .05)
+    }
+
+    .fixedCta .in {
+      max-width: var(--max);
+      margin: 0 auto;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between
+    }
+
+    .fixedCta .label {
+      font-size: 12px;
+      color: rgba(11, 18, 32, .70);
+      font-weight: 700
+    }
+
+    .fixedCta .btn {
+      padding: 12px 20px
+    }
   </style>
 </head>
+
 <body>
   <div class="topbar">
     <div class="wrap">
       <div class="in">
         <div class="brand">
           <div class="logo" aria-hidden="true"></div>
-          <div class="name">舌診AI</div>
+          <div class="name">舌診AI <span
+              style="font-size:11px; font-weight:900; background:var(--vermilion); color:white; padding:1px 5px; border-radius:4px; margin-left:4px; vertical-align:middle">ALPHA</span>
+          </div>
         </div>
         <div class="nav" aria-label="ページ内ナビゲーション">
+          <a href="#research-overview">研究概要</a>
           <a href="#how">使い方</a>
-          <a href="#results">得られる結果</a>
-          <a href="#ux">続くUX</a>
-          <a href="#privacy">プライバシー</a>
+          <a href="#results">診断結果</a>
           <a href="#plans">プラン</a>
           <a href="#faq">FAQ</a>
         </div>
         <div class="btns">
-          <button class="btn ghost" onclick="document.querySelector('#how').scrollIntoView({behavior:'smooth'});">使い方を見る</button>
-          <button class="btn primary" onclick="alert('ここはアプリ内の診断開始URLへ接続する想定です');">無料で今日の診断をはじめる</button>
+          <button class="btn ghost"
+            onclick="document.querySelector('#how').scrollIntoView({behavior:'smooth'});">使い方</button>
+          <button class="btn primary" onclick="navToApp('topbar_primary')">無料で診断をはじめる</button>
         </div>
       </div>
     </div>
@@ -184,49 +826,122 @@
       <div class="heroBox">
         <div class="heroInner">
           <div>
-            <div class="kicker"><span class="dot" aria-hidden="true"></span>Phase1：拡散と習慣化に最適化</div>
-            <h1>舌で、今日の体調傾向を見える化。</h1>
-            <p class="lead">毎日30秒。写真＋かんたん問診で、今のバランスをやさしく可視化します。医療の診断ではなく、日々のセルフケア判断を支えるガイドです。</p>
+            <div class="kicker"><span class="dot" aria-hidden="true"></span>Z-26 プロジェクト：学生テスト実施中</div>
+            <h1>舌で、今日の体調傾向を<br>見える化。</h1>
+            <p class="lead" style="font-weight:500">毎日30秒。写真＋かんたん問診で、今のバランスをやさしく可視化。研究プロジェクト「Z-26」として、誠実なデータ観測を支えます。</p>
 
             <div class="heroBullets" aria-label="主要ベネフィット">
-              <div class="pill"><div class="ic" aria-hidden="true">1</div><div><div style="font-weight:900">今日の主傾向がわかる</div><div class="muted" style="font-size:13px">いま一番強いサインを明確に表示</div></div></div>
-              <div class="pill"><div class="ic" aria-hidden="true">2</div><div><div style="font-weight:900">適合Top3で迷わない</div><div class="muted" style="font-size:13px">近いパターンを並べて比較できる</div></div></div>
-              <div class="pill"><div class="ic" aria-hidden="true">3</div><div><div style="font-weight:900">日々の変化を追える</div><div class="muted" style="font-size:13px">履歴に残して気づきを蓄積</div></div></div>
+              <div class="pill">
+                <div class="ic" aria-hidden="true">1</div>
+                <div>
+                  <div style="font-weight:900">今日の主傾向がわかる</div>
+                  <div class="muted" style="font-size:13px">いま一番強いサインを優先表示</div>
+                </div>
+              </div>
+              <div class="pill">
+                <div class="ic" aria-hidden="true">2</div>
+                <div>
+                  <div style="font-weight:900">適合Top3で納得感</div>
+                  <div class="muted" style="font-size:13px">近いパターンを並べて比較・確認</div>
+                </div>
+              </div>
+              <div class="pill">
+                <div class="ic" aria-hidden="true">3</div>
+                <div>
+                  <div style="font-weight:900">日々の変化を追える</div>
+                  <div class="muted" style="font-size:13px">履歴に残して気づきを蓄積</div>
+                </div>
+              </div>
             </div>
 
             <div class="heroCtas">
-              <button class="btn primary" onclick="alert('ここはアプリ内の診断開始URLへ接続する想定です');">無料で今日の診断をはじめる</button>
-              <button class="btn ghost" onclick="document.querySelector('#plans').scrollIntoView({behavior:'smooth'});">プランを見る</button>
+              <button class="btn primary" onclick="navToApp('hero_primary')">無料で今日の診断をはじめる</button>
+              <button class="btn outline" onclick="navToApp('hero_student')">学生テストに参加する（無料）</button>
             </div>
 
-            <div class="badgeRow" aria-label="ストアバッジ">
-              <div class="storeBadge" title="App Store 風の表示（実装用プレースホルダー）">
+            <div class="badgeRow" aria-label="ストアバッジ風表示">
+              <div class="storeBadge">
                 <div class="mini" aria-hidden="true"></div>
-                <div class="t"><small>Download on</small><span>App Store</span></div>
+                <div class="t"><small>Available on</small><span>Web App v1.5</span></div>
               </div>
-              <div class="storeBadge" title="Google Play 風の表示（実装用プレースホルダー）">
-                <div class="mini" aria-hidden="true"></div>
-                <div class="t"><small>Get it on</small><span>Google Play</span></div>
+              <div style="font-size:12px; color:var(--muted); align-self:center; font-weight:700">iOS / Android 対応予定
               </div>
             </div>
           </div>
 
-          <div class="phoneWrap" aria-label="アプリスクリーンショット枠">
+          <div class="phoneWrap" aria-label="アプリUIプレビュー">
             <div class="phone">
-              <div class="screen">
-                <div class="screenTop"><span>舌診AI</span><span>プレビュー</span></div>
-                <div class="miniBar" aria-hidden="true"></div>
-                <div class="shotGrid">
-                  <div class="shot"><div class="ttl">撮影</div><div class="cap">舌を明るい場所で1枚</div></div>
-                  <div class="shot"><div class="ttl">問診</div><div class="cap">1画面1問、選択後500msで次へ</div></div>
-                  <div class="shot"><div class="ttl">結果</div><div class="cap">主傾向＋Top3を表示</div></div>
-                  <div class="shot"><div class="ttl">履歴</div><div class="cap">日々の変化を追跡</div></div>
+              <div class="phoneInner">
+                <div class="screen">
+                  <div class="screenTop">Z-26 ANALYSIS PREVIEW</div>
+                  <div class="appContent">
+                    <div class="resProgress">
+                      <div class="resProgressBar"></div>
+                    </div>
+                    <div class="resCard">
+                      <div class="resScore">92</div>
+                      <div class="resLabel">Analysis Complete</div>
+                      <div
+                        style="height:120px; background:linear-gradient(135deg, #f1f5f9, #cbd5e1); border-radius:12px; margin-bottom:12px; display:flex; align-items:center; justify-content:center; color:#94a3b8; font-weight:900; font-size:10px;">
+                        SNS SHARE PREVIEW</div>
+                      <div class="resGrid">
+                        <div class="resItem active">
+                          <div>🔋</div>
+                          <div>気虚</div>
+                        </div>
+                        <div class="resItem">
+                          <div>☀️</div>
+                          <div>陽虚</div>
+                        </div>
+                        <div class="resItem">
+                          <div>💧</div>
+                          <div>陰虚</div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="appVisual"></div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-
         </div>
+
+        <!-- Research Project Overview Card -->
+        <section id="research-overview" class="anchor" style="padding:0; margin-top:24px;">
+          <div class="card"
+            style="padding:20px; background:rgba(24,183,165,.03); border-radius:22px; border:1px solid rgba(24,183,165,.12);">
+            <h3
+              style="color:var(--jade); font-weight:900; margin-bottom:12px; display:flex; align-items:center; gap:8px;">
+              <span
+                style="display:inline-block; width:14px; height:14px; background:var(--jade); border-radius:4px"></span>
+              研究プロジェクト概要
+            </h3>
+            <table class="overviewTable" aria-label="研究プロジェクト詳細">
+              <tr>
+                <th>研究目的</th>
+                <td>学生テストで検証・改善</td>
+              </tr>
+              <tr>
+                <th>対象</th>
+                <td>対象は学生テスト参加者</td>
+              </tr>
+              <tr>
+                <th>研究利用</th>
+                <td>同意ONの場合のみ</td>
+              </tr>
+              <tr>
+                <th>匿名化</th>
+                <td>匿名IDで記録</td>
+              </tr>
+              <tr>
+                <th>重要な注意</th>
+                <td>医療の確定診断ではない</td>
+              </tr>
+            </table>
+          </div>
+        </section>
+
       </div>
     </div>
   </header>
@@ -234,58 +949,46 @@
   <section class="anchor" id="proof">
     <div class="wrap">
       <div class="card stats">
-        <h2>信頼の前提</h2>
-        <p class="lead" style="margin-bottom:12px">臨床舌診の知見とAI解析を組み合わせ、毎日続けられる形で「観測」を支えます。数字は仮置き枠なので、実数が決まったら差し替えできます。</p>
+        <h2 style="text-align:center">信頼へのあゆみ</h2>
+        <p class="lead" style="margin-bottom:20px; text-align:center">臨床舌診の知見とAI解析を組み合わせ、毎日の観測を支えます。</p>
         <div class="statsGrid">
-          <div class="stat"><div class="num">◯◯回+</div><div class="lbl">累計診断回数（仮）</div></div>
-          <div class="stat"><div class="num">◯◯%</div><div class="lbl">継続率（仮）</div></div>
-          <div class="stat"><div class="num">1000人</div><div class="lbl">学生テスト計画（Phase1）</div></div>
+          <div class="stat">
+            <div class="num" style="font-size:18px">近日更新予定</div>
+            <div class="lbl">累計診断回数</div>
+          </div>
+          <div class="stat">
+            <div class="num" style="font-size:18px">近日更新予定</div>
+            <div class="lbl">継続利用ユーザー</div>
+          </div>
+          <div class="stat">
+            <div class="num">1,000名</div>
+            <div class="lbl">学生テスト計画（Phase1）</div>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
-  <section class="anchor" id="value">
+  <section class="anchor" id="student-benefits">
     <div class="wrap">
-      <div class="grid two">
-        <div class="card feature">
-          <div class="tag"><span class="b" aria-hidden="true"></span>共感</div>
-          <h2 style="margin-top:10px">なんとなく不調を、言語化できない。</h2>
-          <p>体調の波を、気合いではなく観測に変えます。舌のサインを手がかりに、あなたの状態の傾向を整理して返します。</p>
-          <div style="height:14px"></div>
-          <table aria-label="よくある悩みと変化">
-            <tr>
-              <th style="width:45%">よくある悩み</th>
-              <th>舌診AIで得られる変化</th>
-            </tr>
-            <tr>
-              <td>理由が説明できない違和感</td>
-              <td>主傾向とTop3で、いまの状態を整理</td>
-            </tr>
-            <tr>
-              <td>継続できず、振り返れない</td>
-              <td>履歴で変化を見える化し、気づきを蓄積</td>
-            </tr>
-            <tr>
-              <td>情報が多すぎて迷う</td>
-              <td>まず今日の一手に落とし込む提案</td>
-            </tr>
-          </table>
-        </div>
-
-        <div class="card feature">
-          <div class="tag"><span class="b" aria-hidden="true"></span>選ばれる理由</div>
-          <h2 style="margin-top:10px">続く設計を、最初から。</h2>
-          <p>Phase1は拡散と習慣化。毎日やりたくなる体験を優先し、将来の専門家市場・研究価値へつなげます。</p>
-          <div style="height:14px"></div>
-          <table aria-label="選ばれる理由">
-            <tr><th style="width:40%">ポイント</th><th>理由</th></tr>
-            <tr><td>30秒体感</td><td>1画面1問＋自動遷移で、考える負担を削減</td></tr>
-            <tr><td>結果が明確</td><td>主傾向＋Top3で、迷いを減らす</td></tr>
-            <tr><td>安心設計</td><td>プライバシーと研究同意を分離し、選べる</td></tr>
-            <tr><td>拡張性</td><td>データ蓄積で研究価値と専門家市場へ</td></tr>
-          </table>
-        </div>
+      <div class="card feature">
+        <div class="tag"><span class="b" aria-hidden="true"></span>学生テスト参加メリット</div>
+        <h2 style="margin-top:10px">あなたの参加が、次世代のAIを創る。</h2>
+        <p class="lead">Phase1参加者への限定特典と、研究貢献の機会を提供します。</p>
+        <table class="overviewTable" style="margin-top:20px;">
+          <tr>
+            <th>テスターバッジ</th>
+            <td>正式版リリース時に「αテスターバッジ」を付与</td>
+          </tr>
+          <tr>
+            <th>研究貢献</th>
+            <td>研究データの蓄積によるAI精度向上への直接貢献</td>
+          </tr>
+          <tr>
+            <th>先行参加</th>
+            <td>一般公開前の最新機能・改善版への優先アクセス</td>
+          </tr>
+        </table>
       </div>
     </div>
   </section>
@@ -293,12 +996,36 @@
   <section class="anchor" id="how">
     <div class="wrap">
       <div class="card steps">
-        <h2>使い方（4ステップ）</h2>
-        <div class="grid two" style="margin-top:12px">
-          <div class="step"><div class="no">1</div><div><h3>撮影</h3><p>舌を明るい場所で1枚。ガイドに合わせるだけ。</p></div></div>
-          <div class="step"><div class="no">2</div><div><h3>20問</h3><p>1画面1問。選択後500msで自動的に次へ。</p></div></div>
-          <div class="step"><div class="no">3</div><div><h3>結果</h3><p>現在の主傾向と、適合度の高いTop3を表示。</p></div></div>
-          <div class="step"><div class="no">4</div><div><h3>記録</h3><p>履歴で変化を追跡。気づきを日々蓄積。</p></div></div>
+        <h2 style="text-align:center">使い方はかんたん（4ステップ）</h2>
+        <div class="grid two" style="margin-top:20px">
+          <div class="step">
+            <div class="no">1</div>
+            <div>
+              <h3>撮影</h3>
+              <p>舌を明るい場所で1枚。ガイドに合わせるだけ。</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="no">2</div>
+            <div>
+              <h3>問診</h3>
+              <p>直感的な選択。500msの自動遷移でスムーズ。</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="no">3</div>
+            <div>
+              <h3>結果</h3>
+              <p>主傾向とTop3を表示。自分の感覚と比較。</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="no">4</div>
+            <div>
+              <h3>記録</h3>
+              <p>履歴で変化を追跡。気づきを日々蓄積。</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -308,57 +1035,24 @@
     <div class="wrap">
       <div class="card results">
         <h2>得られる結果</h2>
-        <p class="lead" style="margin-bottom:12px">診断の出力は、迷わず行動につながる順番で見せます。</p>
+        <p class="lead" style="margin-bottom:20px">診断結果は、迷わず次の一手につながる順番で見せます。</p>
         <div class="grid three">
-          <div class="card" style="padding:16px; background:rgba(255,255,255,.92)">
-            <div class="chip"><i aria-hidden="true"></i>現在の主傾向</div>
+          <div class="card" style="padding:16px; background:white">
+            <div class="chip"><i></i>現在の主傾向</div>
             <h3 style="margin-top:10px">いま一番強いサイン</h3>
-            <p class="muted">結果画面で最上部に表示。解釈に迷わない。</p>
+            <p class="muted" style="font-size:13px">結果画面の最上部に。解釈に迷わない。</p>
           </div>
-          <div class="card" style="padding:16px; background:rgba(255,255,255,.92)">
-            <div class="chip"><i aria-hidden="true"></i>Top 3</div>
+          <div class="card" style="padding:16px; background:white">
+            <div class="chip"><i></i>Top 3</div>
             <h3 style="margin-top:10px">近いパターンを比較</h3>
-            <p class="muted">適合度の高い順に3つ提示。自分の感覚と合わせやすい。</p>
+            <p class="muted" style="font-size:13px">適合度の高い順に提示。自己感覚と照合。</p>
           </div>
-          <div class="card" style="padding:16px; background:rgba(255,255,255,.92)">
-            <div class="chip"><i aria-hidden="true"></i>次の一手</div>
+          <div class="card" style="padding:16px; background:white">
+            <div class="chip"><i></i>次の一手</div>
             <h3 style="margin-top:10px">小さな提案</h3>
-            <p class="muted">今日できる行動に落とし込み、継続を支える。</p>
+            <p class="muted" style="font-size:13px">今日できる行動に落とし込み、習慣を支援。</p>
           </div>
         </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="anchor" id="ux">
-    <div class="wrap">
-      <div class="card feature">
-        <h2>30秒体感を作るUX</h2>
-        <p class="lead" style="margin-bottom:12px">回答率を落とさず、心理負荷を下げるための設計を前提化します。</p>
-        <table aria-label="UX要件">
-          <tr><th style="width:40%">要件</th><th>ページでの見せ方</th></tr>
-          <tr><td>1画面1問</td><td>迷う余白を減らす。視線移動を最小化。</td></tr>
-          <tr><td>自動次へ（選択後500ms）</td><td>テンポを固定し、考える時間のムラを減らす。</td></tr>
-          <tr><td>進捗バー</td><td>終わりが見えることでストレスが下がる。</td></tr>
-          <tr><td>未回答の視覚区別</td><td>戻ったときに迷わない。やり直しがラク。</td></tr>
-          <tr><td>戻る可能</td><td>不安の逃げ道を用意し、離脱を防ぐ。</td></tr>
-        </table>
-      </div>
-    </div>
-  </section>
-
-  <section class="anchor" id="privacy">
-    <div class="wrap">
-      <div class="card feature">
-        <h2>プライバシーと安全設計</h2>
-        <p class="lead" style="margin-bottom:12px">データはあなたのもの。研究に使う場合も、同意と範囲を選べる設計を前提にします。</p>
-        <table aria-label="プライバシー設計">
-          <tr><th style="width:40%">項目</th><th>方針（LP表示例）</th></tr>
-          <tr><td>保護</td><td>暗号化などの保護設計を前提（実装仕様に合わせて具体化）</td></tr>
-          <tr><td>第三者提供</td><td>販売・共有はしない（必要なら法務文言で補強）</td></tr>
-          <tr><td>研究利用</td><td>同意ON/OFFを選択制。目的と範囲を明示。</td></tr>
-          <tr><td>削除</td><td>ユーザーが削除できる導線を用意（画面・FAQに記載）</td></tr>
-        </table>
       </div>
     </div>
   </section>
@@ -367,41 +1061,41 @@
     <div class="wrap">
       <div class="card feature">
         <h2>プラン</h2>
-        <p class="lead" style="margin-bottom:12px">Phase1の確定版。拡散と習慣化を最優先にした価格設計です。</p>
+        <p class="lead" style="margin-bottom:16px">Phase1：拡散と習慣化を最優先にした構成です。</p>
         <table aria-label="プラン比較">
           <tr>
             <th style="width:20%">プラン</th>
-            <th style="width:12%">月額</th>
-            <th>できること（ユーザー目線）</th>
-            <th style="width:22%">向いている人</th>
+            <th style="width:15%">月額</th>
+            <th>できること</th>
+            <th style="width:25%">推奨</th>
           </tr>
           <tr>
             <td>Free</td>
             <td>0円</td>
-            <td>月3回まで診断、結果（主傾向＋Top3）、基本の履歴</td>
+            <td>月3回まで診断、基本解析、履歴</td>
             <td>まず試したい</td>
           </tr>
           <tr>
             <td>Light</td>
             <td>480円</td>
-            <td>診断回数増、履歴の見やすさ強化、継続を支えるUI</td>
+            <td>回数無制限、履歴強化、UI改善</td>
             <td>習慣化したい</td>
           </tr>
           <tr>
-            <td>Pro Personal</td>
+            <td>Pro</td>
             <td>980円</td>
-            <td>解析の深掘り表示、推奨の精度・納得感強化、長期トレンド</td>
-            <td>体調管理を軸にしたい</td>
+            <td>詳細チャート、長期トレンド、高精度解析</td>
+            <td>深掘りしたい</td>
           </tr>
         </table>
-        <div class="ctaBand" style="margin-top:14px; border-radius:22px; background:rgba(14,22,36,.04); border:1px solid rgba(14,22,36,.08)">
+        <div class="ctaBand"
+          style="margin-top:20px; border-radius:22px; background:rgba(14,22,36,.04); border:1px solid rgba(14,22,36,.08)">
           <div class="txt">
             <div style="font-weight:900">迷ったらFreeで今日1回</div>
-            <div class="muted" style="font-size:13px">続けられそうならLight、深掘りしたいならProへ</div>
+            <div class="muted" style="font-size:13px">明日からの変化を、一緒に観測しましょう。</div>
           </div>
           <div class="btns">
-            <button class="btn ghost" onclick="document.querySelector('#faq').scrollIntoView({behavior:'smooth'});">FAQを見る</button>
-            <button class="btn primary" onclick="alert('ここはアプリ内の診断開始URLへ接続する想定です');">無料で今日の診断をはじめる</button>
+            <button class="btn primary" onclick="navToApp('cta_plan')">無料で診断をはじめる</button>
           </div>
         </div>
       </div>
@@ -413,15 +1107,22 @@
       <div class="card feature">
         <h2>FAQ</h2>
         <table aria-label="FAQ一覧">
-          <tr><th style="width:34%">質問</th><th>回答（LP用たたき台）</th></tr>
-          <tr><td>医療の診断ですか？</td><td>医療の確定診断ではありません。日々のセルフケア判断を支えるために、傾向を整理して提示します。</td></tr>
-          <tr><td>精度はどのくらい？</td><td>Phase1では「習慣化と納得感」を重視。データ蓄積により検証と改善を進めます（検証指標は公開可能）。</td></tr>
-          <tr><td>撮影のコツは？</td><td>明るい場所で、ガイドに合わせてブレを減らして撮影してください。失敗しにくい撮影ガイドを用意します。</td></tr>
-          <tr><td>データは外部に共有されますか？</td><td>第三者への販売・共有はしない方針です。研究利用は同意ON/OFFと範囲指定で選べます。</td></tr>
-          <tr><td>誰が使えますか？</td><td>体調の変化を日々観測したい人に向きます。医療的な懸念がある場合は医療機関へ相談してください。</td></tr>
-          <tr><td>無料は何回まで？</td><td>月3回まで。続けたい場合はLight/Proへ移行できます。</td></tr>
-          <tr><td>解約は簡単？</td><td>いつでも解約可能にします（ストアのサブスク管理に準拠）。</td></tr>
-          <tr><td>研究利用の扱いは？</td><td>目的・範囲・保存期間などを明示し、同意した場合のみ利用する設計を前提にします。</td></tr>
+          <tr>
+            <th style="width:34%">質問</th>
+            <th>回答</th>
+          </tr>
+          <tr>
+            <td>医療の診断ですか？</td>
+            <td>いいえ。セルフケアを支えるための傾向整理ツールです。確定診断ではありません。</td>
+          </tr>
+          <tr>
+            <td>精度はどのくらい？</td>
+            <td>Phase1では習慣化を重視。蓄積データをもとに随時アップデートします。</td>
+          </tr>
+          <tr>
+            <td>データは安全？</td>
+            <td>法的要件を遵守し強固に保護。研究利用は同意がある場合のみ匿名で行います。</td>
+          </tr>
         </table>
       </div>
     </div>
@@ -429,17 +1130,13 @@
 
   <section class="anchor" id="final">
     <div class="wrap">
-      <div class="card" style="padding:18px; background: radial-gradient(1000px 420px at 20% 0%, rgba(24,183,165,.18), transparent 55%), radial-gradient(900px 320px at 80% 20%, rgba(226,75,59,.16), transparent 55%), rgba(255,255,255,.90);">
-        <div class="ctaBand">
-          <div class="txt">
-            <h2 style="margin:0">まずは今日の1回。30秒で、体の声を拾いにいこう。</h2>
-            <div class="muted" style="font-size:13px">固定CTAにして、迷わせず開始できる導線を維持します。</div>
-          </div>
-          <div class="btns">
-            <button class="btn ghost" onclick="document.querySelector('#how').scrollIntoView({behavior:'smooth'});">使い方を見る</button>
-            <button class="btn primary" onclick="alert('ここはアプリ内の診断開始URLへ接続する想定です');">無料で今日の診断をはじめる</button>
-          </div>
-        </div>
+      <div class="card"
+        style="padding:28px; text-align:center; background: radial-gradient(1000px 420px at 20% 0%, rgba(24,183,165,.18), transparent 55%), radial-gradient(900px 320px at 80% 20%, rgba(226,75,59,.16), transparent 55%), white;">
+        <h2 style="font-size:32px; font-weight:900; margin-bottom:12px">まずは今日の30秒から。<br>体の声を、科学する。</h2>
+        <p class="muted" style="max-width:600px; margin:0 auto 24px auto">研究プロジェクト Z-26 は、誠実なデータとともにあなたの明日を少しだけ明るくします。
+        </p>
+        <button class="btn primary" style="padding:16px 40px; font-size:16px"
+          onclick="navToApp('cta_final')">無料で今日の診断をはじめる</button>
       </div>
     </div>
   </section>
@@ -448,37 +1145,52 @@
     <div class="wrap">
       <div class="footGrid">
         <div class="foot">
-          <div style="font-weight:900; margin-bottom:6px">舌診AI</div>
-          <div class="muted" style="font-size:13px; line-height:1.7">本事業の優先順位：舌診の社会的普及 → 研究データの蓄積と価値化 → 専門家市場の確立 → 長期的収益最大化。</div>
+          <div style="font-weight:900; margin-bottom:10px; color:var(--text)">舌診AI｜Z-26 Project</div>
+          <div class="muted" style="font-size:12px; line-height:1.8">
+            社会的普及、研究データの蓄積、そして専門家市場の確立を目指すフェーズ1プロジェクトです。
+          </div>
         </div>
         <div class="foot">
-          <div style="font-weight:900; margin-bottom:6px">リンク</div>
-          <a href="#privacy">プライバシー</a>
+          <div style="font-weight:900; margin-bottom:10px; color:var(--text)">リンク</div>
           <a href="#plans">料金プラン</a>
           <a href="#faq">FAQ</a>
+          <a href="/app">アプリ起動</a>
         </div>
         <div class="foot">
-          <div style="font-weight:900; margin-bottom:6px">運用</div>
-          <a href="#">利用規約（準備中）</a>
-          <a href="#">プライバシーポリシー（準備中）</a>
-          <a href="#">お問い合わせ（準備中）</a>
+          <div style="font-weight:900; margin-bottom:10px; color:var(--text)">法務・運用</div>
+          <a href="/terms">利用規約（準備中）</a>
+          <a href="/privacy">プライバシーポリシー（準備中）</a>
+          <a href="/contact">お問い合わせ（準備中）</a>
         </div>
       </div>
-      <div style="height:16px"></div>
-      <div class="muted" style="font-size:12px">© 舌診AI. Noto Sans JP. App Store風のLPテンプレート（スクショ差し替え前提）。</div>
+      <div style="height:32px; border-bottom:1px solid rgba(0,0,0,.05); margin-bottom:16px"></div>
+      <div class="muted" style="font-size:11px; text-align:center">© 2026 Z26 Research Project. Noto Sans JP.
+        本サービスは研究目的のα版です。</div>
     </div>
   </footer>
 
   <div class="fixedCta" role="region" aria-label="固定CTA">
     <div class="in">
       <div>
-        <div class="label">今日の体調傾向を30秒で</div>
-        <div style="font-weight:900">無料で今日の診断をはじめる</div>
+        <div class="label">研究テスト参加募集中</div>
+        <div style="font-weight:900; font-size:14px">診断をはじめる（無料）</div>
       </div>
-      <button class="btn primary" onclick="alert('ここはアプリ内の診断開始URLへ接続する想定です');">診断開始</button>
+      <button class="btn primary" onclick="navToApp('fixed_cta')">はじめる</button>
     </div>
   </div>
 
-</body>
-</html>
+  <script>
+    function navToApp(ctaName) {
+      const baseUrl = '/app';
+      const params = new URLSearchParams({
+        src: 'lp',
+        cta: ctaName,
+        t: Date.now()
+      });
+      window.location.href = baseUrl + '?' + params.toString();
+    }
+  </script>
 
+</body>
+
+</html>
