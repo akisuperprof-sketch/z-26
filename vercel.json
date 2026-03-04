@@ -1,14 +1,5 @@
 {
-    "buildCommand": "vite build",
-    "devCommand": "vite --port $PORT",
-    "rewrites": [
-        {
-            "source": "/app",
-            "destination": "/app/index.html"
-        },
-        {
-            "source": "/app/:path*",
-            "destination": "/app/index.html"
-        }
-    ]
+    "buildCommand": "",
+    "outputDirectory": ".",
+    "framework": null
 }
