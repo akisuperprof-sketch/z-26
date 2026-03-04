@@ -11,20 +11,20 @@ import StreakBadge from './components/StreakBadge';
 import FindingsDictionaryScreen from './components/FindingsDictionaryScreen';
 import SettingsModal from './components/SettingsModal';
 import ImageQualityGateScreen from './components/ImageQualityGateScreen';
+import NicknameSetup from './components/NicknameSetup';
 import { AnalysisMode, AppState, DiagnosisResult, FindingResult, UploadedImage, UserInfo, Gender, ImageSlot, PlanType } from './types';
 import { routeTongueAnalysis } from './services/tongueAnalyzerRouter';
 import { analyzeImageQuality } from './utils/imageQualityAnalyzer';
 import { saveHistory, getHistoryItem, reconstructFindings, reconstructImages, saveLastUserInfo } from './services/historyService';
 import DevSettingsScreen from './components/DevSettingsScreen';
 import { isDevEnabled } from './utils/devFlags';
+import { isProdApp, isDevToolsAllowed, purgeDevFlags } from './utils/prodGuard';
+import { hasSession, getGreeting, getSession } from './utils/userSession';
 import { colors } from './styles/tokens';
 import { updateStreak } from './utils/streak';
 import { pushHistoryMini } from './utils/historyMini';
 import { getConditionType } from './utils/typeMapper';
-import { DebugPanel } from './components/DebugPanel';
-import AdminDashboard from './components/AdminDashboard';
 import { saveLatestPayloadForDebug } from './utils/debugStorage';
-import DevControlCenter from './components/DevControlCenter';
 
 // Inject CSS variables from styles/tokens.ts (SSOT)
 if (typeof document !== 'undefined') {
@@ -35,11 +35,17 @@ if (typeof document !== 'undefined') {
 }
 
 const App: React.FC = () => {
+  // L1 Session: ニックネームが未設定なら NicknameSetup を表示
+  const [isSessionReady, setIsSessionReady] = useState(hasSession());
+
   const [appState, setAppState] = useState<AppState>(AppState.Disclaimer);
   const [analysisResult, setAnalysisResult] = useState<DiagnosisResult | null>(null);
   const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([]);
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
+  const [isRateLimit, setIsRateLimit] = useState(false);
+  const [errorMeta, setErrorMeta] = useState<{ requestId?: string; route?: string; status?: number; sha?: string } | undefined>();
   const [planType, setPlanType] = useState<PlanType>(() => {
     if (typeof window !== 'undefined') {
       return (localStorage.getItem('PLAN_TYPE') as PlanType) || 'light';
@@ -55,15 +61,17 @@ const App: React.FC = () => {
   const [devMode, setDevMode] = useState(isDevEnabled());
   const [analysisMode, setAnalysisMode] = useState<AnalysisMode>(AnalysisMode.Standard);
   const [qualityReason, setQualityReason] = useState<string>("");
-  const [showDevFlagBanner, setShowDevFlagBanner] = useState(false);
 
-  // Force Pro Mode from localStorage (DEV ONLY)
+  // ===== DEV FLAG PURGE (A): 本番で強制消去 =====
+  const showDevTools = isDevToolsAllowed();
+
+  // Force Pro Mode — DEV限定
   const isForcedPro = React.useMemo(() => {
-    if (!import.meta.env.DEV) return false;
+    if (!showDevTools) return false;
     return localStorage.getItem("FORCE_PRO") === "true";
-  }, []);
+  }, [showDevTools]);
 
-  const currentEffectivePlan = isForcedPro ? AnalysisMode.Pro : (devMode ? analysisMode : AnalysisMode.Standard);
+  const currentEffectivePlan = isForcedPro ? AnalysisMode.Pro : (devMode && showDevTools ? analysisMode : AnalysisMode.Standard);
 
   const handleAgree = useCallback(() => {
     setAppState(AppState.UserInfo);
@@ -74,10 +82,15 @@ const App: React.FC = () => {
     setAppState(AppState.Uploading);
   }, []);
 
-  // URL-based Hidden Routing for Dev Settings (/dev/settings)
+  // === PROD SAFETY (A) + URL routing ===
   React.useEffect(() => {
-    // 1. One-click Test Shortcut (DEV ONLY)
-    if (import.meta.env.DEV && localStorage.getItem("DEBUG_AUTO_TEST") === "v1") {
+    // 1. 本番でDEVフラグを強制消去
+    if (isProdApp()) {
+      purgeDevFlags();
+    }
+
+    // 2. DEV限定: One-click Test Shortcut
+    if (showDevTools && localStorage.getItem("DEBUG_AUTO_TEST") === "v1") {
       if (!userInfo) {
         setUserInfo({
           age: 30,
@@ -97,42 +110,23 @@ const App: React.FC = () => {
       }
     }
 
-    // Safety check for production
-    if (!import.meta.env.DEV) {
-      const hasForcePro = localStorage.getItem("FORCE_PRO") === "true";
-      const hasDummy = localStorage.getItem("DUMMY_TONGUE") === "true";
-      const hasMock = localStorage.getItem("MOCK_AI") === "true";
-      const hasDebugAutoTest = localStorage.getItem("DEBUG_AUTO_TEST") === "v1";
-      const hasDummyPreset = !!localStorage.getItem("DUMMY_PRESET");
-
-      if (hasForcePro || hasDummy || hasMock || hasDebugAutoTest || hasDummyPreset) {
-        console.error("CRITICAL: DEV flags detected in production! Disabling.");
-        setShowDevFlagBanner(true);
-        localStorage.removeItem("FORCE_PRO");
-        localStorage.removeItem("DUMMY_TONGUE");
-        localStorage.removeItem("MOCK_AI");
-        localStorage.removeItem("DEBUG_AUTO_TEST");
-        localStorage.removeItem("DUMMY_PRESET");
-      }
-    }
-
+    // 3. URL-based routing for Dev Settings (DEV ONLY)
     const handleLocationCheck = () => {
+      if (!showDevTools) return;
       const path = window.location.pathname;
       if (path.endsWith('/dev/settings')) {
         setAppState(AppState.DevSettings);
       } else if (path.endsWith('/admin/report')) {
         setAppState(AppState.AdminDashboard);
-      } else if (window.location.hash === '#dev-settings') {
-        const newPath = path.includes('/app') ? '/app/dev/settings' : '/dev/settings';
-        window.history.replaceState(null, '', newPath);
-        setAppState(AppState.DevSettings);
       }
     };
-    window.addEventListener('popstate', handleLocationCheck);
-    window.addEventListener('hashchange', handleLocationCheck);
-    handleLocationCheck();
+    if (showDevTools) {
+      window.addEventListener('popstate', handleLocationCheck);
+      window.addEventListener('hashchange', handleLocationCheck);
+      handleLocationCheck();
+    }
 
-    // Plan Type Sync Effect
+    // 4. Plan Type Sync
     const handlePlanUpdate = () => {
       const stored = localStorage.getItem('PLAN_TYPE') as PlanType;
       if (stored && stored !== planType) setPlanType(stored);
@@ -140,11 +134,13 @@ const App: React.FC = () => {
     window.addEventListener('storage', handlePlanUpdate);
 
     return () => {
-      window.removeEventListener('popstate', handleLocationCheck);
-      window.removeEventListener('hashchange', handleLocationCheck);
+      if (showDevTools) {
+        window.removeEventListener('popstate', handleLocationCheck);
+        window.removeEventListener('hashchange', handleLocationCheck);
+      }
       window.removeEventListener('storage', handlePlanUpdate);
     };
-  }, [planType, appState]);
+  }, [planType, appState, showDevTools]);
 
   // History Handlers
   const handleHistoryClick = useCallback(() => {
@@ -197,7 +193,7 @@ const App: React.FC = () => {
   }, []);
 
   const handleHearingNext = useCallback(async (hearingAnswers: Record<string, number | null>) => {
-    const isDummy = import.meta.env.DEV && typeof window !== 'undefined' && localStorage.getItem("DUMMY_TONGUE") === "true";
+    const isDummy = showDevTools && typeof window !== 'undefined' && localStorage.getItem("DUMMY_TONGUE") === "true";
 
     // 1. Image Quality Guard (Skip if DUMMY)
     if (!isDummy) {
@@ -223,13 +219,11 @@ const App: React.FC = () => {
             if (avgBrightness < 35) return resolve({ ok: false, reason: "画像が暗すぎます" });
             if (avgBrightness > 235) return resolve({ ok: false, reason: "画像が明るすぎます（白飛び）" });
 
-            // B. Blur Check (Simple Laplacian Variance heuristic)
-            // 3x3 Laplacian Kernel: [[0, 1, 0], [1, -4, 1], [0, 1, 0]]
+            // B. Blur Check
             const gray = new Float32Array(100 * 100);
             for (let i = 0; i < data.length; i += 4) {
               gray[i / 4] = (data[i] + data[i + 1] + data[i + 2]) / 3;
             }
-
             let lapVar = 0;
             let lapSum = 0;
             const laplacian = new Float32Array(100 * 100);
@@ -246,11 +240,7 @@ const App: React.FC = () => {
               lapVar += Math.pow(laplacian[i] - lapAvg, 2);
             }
             const variance = lapVar / (98 * 98);
-
-            console.log(`[QC] Brightness: ${avgBrightness.toFixed(1)}, BlurVar: ${variance.toFixed(1)}`);
-            // Threshold 10 is very blurry for 100x100 downscale
             if (variance < 10) return resolve({ ok: false, reason: "画像がぼけています" });
-
             resolve({ ok: true, reason: "" });
           };
           tempImg.src = img.previewUrl;
@@ -266,21 +256,23 @@ const App: React.FC = () => {
     }
 
     setAppState(AppState.Analyzing);
+    setRetryCount(0);
+    setIsRateLimit(false);
+    setErrorMeta(undefined);
 
     try {
       setAnalysisError(null);
       const files = uploadedImages.map(img => img.file);
       const currentMode = currentEffectivePlan;
-      const userRole = localStorage.getItem('role') || 'FREE';
+      const userRole = localStorage.getItem('ZETUSHIN_ROLE') || 'general';
 
       const result = await routeTongueAnalysis(files, userInfo, currentMode, userRole);
 
-      // Async Image Quality Analysis (Observation Layer) - Non-blocking
+      // Async Image Quality Analysis - Non-blocking
       (async () => {
         try {
           if (files[0] && result.savedId && result.result_v2?.output_payload) {
             const qualityPayload = await analyzeImageQuality(files[0]);
-
             fetch('/api/analyze/update_v2', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -308,14 +300,14 @@ const App: React.FC = () => {
       setAnalysisResult(result);
       updateStreak();
 
-      // Feature Flag check for History Mini
+      // History Mini (Feature Flag)
       const isHistoryMiniEnabled = typeof window !== 'undefined' && localStorage.getItem('FF_HISTORY_MINI_V1') === '1';
       if (isHistoryMiniEnabled) {
         try {
           const typeId = result.result_v2?.output_payload?.diagnosis?.top1_id || result.top3?.[0]?.id || null;
           const conditionType = getConditionType(typeId);
-          const hash = conditionType.name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-          const score = 50 + (hash % 45); // Dummy score 50-95
+          const hash = conditionType.name.split('').reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0);
+          const score = 50 + (hash % 45);
           pushHistoryMini({
             score,
             typeId: typeId || undefined,
@@ -328,7 +320,7 @@ const App: React.FC = () => {
         }
       }
 
-      // Always persist latest result for internal tools (Explain Tree) - Hardened v1
+      // Always persist latest payload
       if (result.result_v2?.output_payload) {
         saveLatestPayloadForDebug(result.result_v2.output_payload);
       }
@@ -340,82 +332,95 @@ const App: React.FC = () => {
         saveLastUserInfo(userInfo).catch(err => console.error("Last User Info save failed:", err));
       }
 
-      // --- RESEARCH MODE (DEV ONLY) ---
-      // Hard Guard 1: Runtime/Build-time environment check
-      const isDevEnv = import.meta.env.DEV || (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'));
+      // --- RESEARCH MODE ---
+      // Async non-blocking research log
+      const isResearchAgreed = localStorage.getItem('RESEARCH_AGREED') === 'true';
+      const payload = result.result_v2?.output_payload;
 
-      if (isDevEnv) {
-        const isResearchModeEnabled = typeof window !== 'undefined' && localStorage.getItem('IS_RESEARCH_MODE') === 'true';
-        const isAgreed = typeof window !== 'undefined' && localStorage.getItem('RESEARCH_AGREED') === 'true';
-        const payload = result.result_v2?.output_payload;
+      if (isResearchAgreed && payload) {
+        const doResearchLog = async () => {
+          try {
+            const resultHash = `${payload.diagnosis.top1_id}_${payload.guard.level}_${Math.floor(Date.now() / 60000)}`;
+            const lastSentHash = sessionStorage.getItem('z26_research_last_sent_hash');
+            if (lastSentHash === resultHash || sentResearchHashes.current.has(resultHash)) return;
 
-        if (isResearchModeEnabled && isAgreed && payload) {
-          const doResearchLog = async () => {
-            try {
-              // Deduplication Guard: Prevent double-send for the same result within 60s
-              const resultHash = `${payload.diagnosis.top1_id}_${payload.guard.level}_${Math.floor(Date.now() / 60000)}`;
-              const lastSentHash = sessionStorage.getItem('z26_research_last_sent_hash');
+            sentResearchHashes.current.add(resultHash);
+            sessionStorage.setItem('z26_research_last_sent_hash', resultHash);
 
-              if (lastSentHash === resultHash || sentResearchHashes.current.has(resultHash)) {
-                return;
-              }
+            const { getAnonymousUserId } = await import('./utils/anonymousId');
+            const anonId = getAnonymousUserId();
 
-              // Mark as sent immediately (both in Ref and Storage)
-              sentResearchHashes.current.add(resultHash);
-              sessionStorage.setItem('z26_research_last_sent_hash', resultHash);
+            const tokenRes = await fetch('/api/token', { method: 'POST' });
+            if (!tokenRes.ok) return;
+            const { token } = await tokenRes.json();
 
-              const { getAnonymousUserId } = await import('./utils/anonymousId');
-              const anonId = getAnonymousUserId();
-
-              // 1. Get Token securely
-              const tokenRes = await fetch('/api/token', { method: 'POST' });
-              if (!tokenRes.ok) {
-                // If token fails, maybe allow retry? For now, just clear hash if we really want to retry, 
-                // but let's just keep it simple.
-                return;
-              }
-              const { token } = await tokenRes.json();
-
-              // 2. Safe non-blocking fetch
-              await fetch('/api/research', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                  anonymous_user_id: anonId,
-                  top1_id: payload.diagnosis.top1_id,
-                  level: payload.guard.level,
-                  current_type_label: payload.guard.band,
-                  is_dummy: localStorage.getItem('DUMMY_TONGUE') === 'true',
-                  app_version: '1.2.1',
-                  output_version: payload.output_version,
-                  age_range: userInfo?.age_range || null,
-                  payload: payload
-                })
-              });
-            } catch (err) {
-              console.error('Research logging failed silently:', err);
-            }
-          };
-          doResearchLog();
-        }
+            await fetch('/api/research', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              },
+              body: JSON.stringify({
+                anonymous_user_id: anonId,
+                top1_id: payload.diagnosis.top1_id,
+                level: payload.guard.level,
+                current_type_label: payload.guard.band,
+                is_dummy: false,
+                output_version: payload.output_version,
+                age_range: userInfo?.age_range || null,
+                nickname: getSession()?.nickname || null,
+                role: getSession()?.role || 'general',
+                payload: payload
+              })
+            });
+          } catch (err) {
+            console.error('Research logging failed silently:', err);
+          }
+        };
+        doResearchLog();
       }
-      // --- END RESEARCH MODE ---
 
-    } catch (error) {
+    } catch (error: any) {
       console.error("Analysis failed:", error);
       const errorMessage = error instanceof Error ? error.message : "不明なエラー";
+      const isRL = error?.code === 'RATE_LIMIT' || errorMessage.includes('429');
       setAnalysisError(errorMessage);
+      setIsRateLimit(isRL);
+      setRetryCount(prev => prev + 1);
+      setErrorMeta({
+        requestId: error?.requestId,
+        route: error?.route,
+        status: error?.status,
+        sha: error?.sha,
+      });
     }
-  }, [uploadedImages, userInfo, currentEffectivePlan]);
+  }, [uploadedImages, userInfo, currentEffectivePlan, showDevTools]);
 
   const handleRestart = useCallback(() => {
     setAnalysisResult(null);
     setUploadedImages([]);
+    setRetryCount(0);
+    setAnalysisError(null);
     setAppState(AppState.Uploading);
   }, []);
+
+  const greeting = getGreeting();
+
+  // ===== ニックネーム未設定 → セットアップ画面 =====
+  if (!isSessionReady) {
+    return (
+      <div className="min-h-screen font-sans flex flex-col items-center text-slate-800" style={{ background: colors.light.bg }}>
+        <header className="w-full max-w-4xl mb-6 py-6 px-4 sm:px-0 text-center">
+          <h1 className="text-2xl sm:text-3xl font-black tracking-tighter" style={{ color: colors.light.primary }}>
+            舌診アシスタント2025
+          </h1>
+        </header>
+        <main className="w-full max-w-4xl z-10 flex-1 relative px-4">
+          <NicknameSetup onComplete={() => setIsSessionReady(true)} />
+        </main>
+      </div>
+    );
+  }
 
   const renderContent = () => {
     switch (appState) {
@@ -426,8 +431,8 @@ const App: React.FC = () => {
       case AppState.Uploading:
         return <UploadWizard
           onStartAnalysis={handleStartAnalysis}
-          devMode={devMode}
-          disabled={showDevFlagBanner || (!import.meta.env.DEV && localStorage.getItem('IS_ADMIN') !== 'true')}
+          devMode={devMode && showDevTools}
+          disabled={!showDevTools && isProdApp() && false /* reserved for future lockout */}
           plan={currentEffectivePlan}
         />;
       case AppState.Hearing:
@@ -436,7 +441,13 @@ const App: React.FC = () => {
         return (
           <AnalysisScreen
             error={analysisError}
-            onRetry={() => handleHearingNext(userInfo?.answers?.hearing || {})}
+            onRetry={() => {
+              setAnalysisError(null);
+              handleHearingNext(userInfo?.answers?.hearing || {});
+            }}
+            retryCount={retryCount}
+            isRateLimit={isRateLimit}
+            errorMeta={errorMeta}
           />
         );
       case AppState.Results:
@@ -455,7 +466,7 @@ const App: React.FC = () => {
       case AppState.History:
         return <HistoryScreen onSelectHistory={handleSelectHistory} onBack={handleHistoryBack} />;
       case AppState.Dictionary:
-        return <FindingsDictionaryScreen onBack={handleDictionaryBack} devMode={devMode} />;
+        return <FindingsDictionaryScreen onBack={handleDictionaryBack} devMode={devMode && showDevTools} />;
       case AppState.ImageQualityGate:
         return (
           <ImageQualityGateScreen
@@ -465,8 +476,10 @@ const App: React.FC = () => {
           />
         );
       case AppState.AdminDashboard:
-        return <AdminDashboard onBack={() => setAppState(AppState.Uploading)} />;
+        if (!showDevTools) return <DisclaimerScreen onAgree={handleAgree} />;
+        return (() => { const AdminDashboard = React.lazy(() => import('./components/AdminDashboard')); return <React.Suspense fallback={<div>Loading...</div>}><AdminDashboard onBack={() => setAppState(AppState.Uploading)} /></React.Suspense>; })();
       case AppState.DevSettings:
+        if (!showDevTools) return <DisclaimerScreen onAgree={handleAgree} />;
         return (
           <DevSettingsScreen
             onBack={() => {
@@ -492,11 +505,6 @@ const App: React.FC = () => {
           : colors.light.bg
       }}
     >
-      {showDevFlagBanner && (
-        <div className="w-full max-w-4xl mb-4 p-2 bg-red-600 text-white text-[10px] font-bold text-center rounded shadow-lg animate-pulse">
-          ⚠️ 開発用フラグを検出しました。安全のため自動消去しましたが、再読み込みを推奨します。
-        </div>
-      )}
       <header className="w-full max-w-4xl mb-6 py-6 flex items-center justify-between px-4 sm:px-0">
         <div className="flex-1 text-center sm:text-left">
           <h1 className={`text-2xl sm:text-3xl font-black tracking-tighter ${isPro ? 'text-blue-300' : ''}`} style={{ color: isPro ? undefined : colors.light.primary }}>
@@ -504,19 +512,20 @@ const App: React.FC = () => {
           </h1>
           <div className="flex items-center space-x-2 mt-1">
             <p className={`text-[10px] font-bold uppercase tracking-widest ${isPro ? 'text-blue-400/60' : 'text-slate-400'}`}>
-              セルフケアのための傾向分析・補助ツール {import.meta.env.DEV && <span className="text-orange-500 font-black">[DEV]</span>}
+              {greeting ? `${greeting}の` : ''}セルフケアのための傾向分析
+              {showDevTools && <span className="text-orange-500 font-black ml-1">[DEV]</span>}
             </p>
           </div>
         </div>
 
         <div className="flex items-center space-x-3">
-          {/* Unified Plan Badge */}
+          {/* Plan Badge — 本番はシンプル、DEVは詳細 */}
           <div className={`px-2 py-1 rounded-[4px] text-[10px] font-black uppercase tracking-wider border transition-all flex items-center space-x-1 ${isPro
-            ? (import.meta.env.DEV ? 'bg-[#0F1C2E] text-[#2E6F5E] border-[#2E6F5E] shadow-[0_0_15px_rgba(46,111,94,0.4)]' : 'bg-slate-800/50 text-white border-white/10 backdrop-blur-md')
-            : (import.meta.env.DEV ? 'bg-slate-200 text-slate-600 border-slate-300' : 'bg-slate-100 text-slate-600 border-slate-200 shadow-sm')
-            } ${import.meta.env.DEV ? 'scale-110' : ''}`}>
-            <span>PLAN: {isPro ? 'PRO' : 'LIGHT'}</span>
-            {import.meta.env.DEV && (
+            ? (showDevTools ? 'bg-[#0F1C2E] text-[#2E6F5E] border-[#2E6F5E] shadow-[0_0_15px_rgba(46,111,94,0.4)]' : 'bg-slate-800/50 text-white border-white/10 backdrop-blur-md')
+            : (showDevTools ? 'bg-slate-200 text-slate-600 border-slate-300' : 'bg-slate-100 text-slate-600 border-slate-200 shadow-sm')
+            }`}>
+            <span>PLAN: {isPro ? 'PRO' : 'FREE'}</span>
+            {showDevTools && (
               <>
                 {localStorage.getItem("FORCE_PRO") === "true" && <span className="bg-[#B84C3A] text-white px-1 rounded-[2px] ml-1 text-[8px]">TRIAL</span>}
                 {localStorage.getItem("DUMMY_TONGUE") === "true" && <span className="bg-red-600 text-white px-1 rounded-[2px] ml-1 text-[8px]">DUMMY</span>}
@@ -569,14 +578,26 @@ const App: React.FC = () => {
 
       <footer className="w-full max-w-4xl mt-8 pb-4 text-center text-xs text-slate-500">
         <p>本アプリは医療的な診断、治療、または助言を提供するものではありません。健康上の問題については、必ず医師または他の適切な医療従事者にご相談ください。</p>
-        <p className="mt-2 opacity-50">v1.2.1 {import.meta.env.DEV ? '(Development Build)' : ''}</p>
+        <p className="mt-2 opacity-50">v1.3.0 {showDevTools ? '(Development Build)' : ''}</p>
       </footer>
-      <div className="fixed bottom-2 right-2 text-[10px] font-mono text-slate-500 bg-white/80 px-2 py-1 rounded border border-slate-200 shadow-sm z-50 pointer-events-none">
-        BUILD: 2026.03.02.01
-      </div>
-      <DevControlCenter />
-      <DebugPanel plan={currentEffectivePlan} />
-    </div >
+
+      {/* DEV限定コンポーネント — 本番では一切レンダリングしない */}
+      {showDevTools && (
+        <>
+          {/* DevControlCenter and DebugPanel — lazy loaded, DEV only */}
+          {(() => {
+            const DevControlCenter = React.lazy(() => import('./components/DevControlCenter'));
+            const { DebugPanel } = require('./components/DebugPanel');
+            return (
+              <React.Suspense fallback={null}>
+                <DevControlCenter />
+                <DebugPanel plan={currentEffectivePlan} />
+              </React.Suspense>
+            );
+          })()}
+        </>
+      )}
+    </div>
   );
 };
 

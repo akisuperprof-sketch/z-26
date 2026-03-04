@@ -1,15 +1,15 @@
 {
-    "buildCommand": "",
-    "outputDirectory": ".",
+    "buildCommand": "vite build",
+    "outputDirectory": "dist",
     "framework": null,
     "rewrites": [
         {
-            "source": "/assets/:path*",
-            "destination": "/public/assets/:path*"
+            "source": "/app",
+            "destination": "/app/index.html"
         },
         {
-            "source": "/images/:path*",
-            "destination": "/public/images/:path*"
+            "source": "/app/:path*",
+            "destination": "/app/index.html"
         }
     ]
 }
