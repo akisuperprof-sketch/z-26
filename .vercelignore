@@ -1,4 +1,3 @@
-api/
 tests/
 scripts/
 playwright.config.ts
