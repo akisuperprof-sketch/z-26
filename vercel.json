@@ -1,5 +1,15 @@
 {
     "buildCommand": "",
     "outputDirectory": ".",
-    "framework": null
+    "framework": null,
+    "rewrites": [
+        {
+            "source": "/assets/:path*",
+            "destination": "/public/assets/:path*"
+        },
+        {
+            "source": "/images/:path*",
+            "destination": "/public/images/:path*"
+        }
+    ]
 }
