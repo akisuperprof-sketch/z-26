@@ -1,6 +1,31 @@
+# z-26 = LP専用プロジェクト
+# LP資産は /lp ディレクトリのみ。それ以外は全て除外。
+api/
+app/
+components/
+services/
+utils/
+config/
+constants/
+styles/
+supabase/
 tests/
 scripts/
+docs/
+logs/
+dist/
+node_modules/
+public/
+pages/
+*.tsx
+*.ts
+vite.config.ts
+tsconfig.json
+package.json
+package-lock.json
 playwright.config.ts
 vitest.config.ts
 playwright-report/
 test-results/
+*.log
+*.jpg

@@ -1,32 +1,31 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Z-26 — LP専用リポジトリ
 
-# Run and deploy your AI Studio app
+## ⛔ ドメイン運用ルール（違反は重大事故）
 
-This contains everything you need to run your app locally.
+| ドメイン | 用途 | リポ | 更新対象 |
+|---------|------|------|---------|
+| **z-26.vercel.app** | LP専用 | z-26 | `/lp` ディレクトリのみ |
+| **zetu-shin-app.vercel.app** | アプリ専用 | zetu-shinAPP | アプリコード全体 |
 
-View your app in AI Studio: https://ai.studio/apps/drive/1LSOrjogEY2GIzTDW15CPVBGxXtumU4Iu
+### 絶対禁止事項
+1. z-26.vercel.app でアプリが動く（/appが200を返す）
+2. z-26.vercel.app でAPIが動く（/api/*が200を返す）
+3. z-26.vercel.app でアプリ用アセットが配信される
+4. zetu-shin-app.vercel.app でLPが表示される
 
-## Run Locally
+### LP更新ルール
+- LP資産は **`/lp`ディレクトリのみ** に配置
+- `vercel.json` の `outputDirectory` は `"lp"` 固定
+- `buildCommand` は `""` 固定（ビルドなし）
+- Viteビルド、Reactビルドは**絶対に実行しない**
 
-**Prerequisites:**  Node.js
+### 混線防止の技術的対策
+1. `vercel.json`: `outputDirectory: "lp"` → `/lp` 外のファイルは配信されない
+2. `.vercelignore`: api/, app/, components/ 等を全除外
+3. アプリコードがリポに残っていても、デプロイ対象外
 
-
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
-
-## ⚠️ 本番デプロイ前の安全装置チェック
-
-本番ビルド（Production Build）を行う前に、以下の項目が正しく設定されていることを必ず確認してください。
-
-- [ ] **FORCE_PROの解除**: `localStorage.getItem("FORCE_PRO")` が `true` になっていないことを確認してください。
-- [ ] **DUMMY_TONGUEの解除**: `localStorage.getItem("DUMMY_TONGUE")` が `true` になっていないことを確認してください。
-- [ ] **debugScoreboard/logsの確認**: 本番環境で `[V2 SCOREBOARD]` 等のログが出力されないことを確認してください。
-- [ ] **MOCK_AIの解除**: `localStorage.getItem("MOCK_AI")` が `true` になっていないことを確認してください。
-- [ ] **DEBUG_AUTO_TESTの解除**: 1クリック自動テストが残っていないか確認してください。
-- [ ] **DEBUG_MODE = false**: `utils/debugConfig.ts` の `DEBUG_MODE` を `false` に変更してください。
-- [ ] **プラン表示の確認**: 本番環境ではプランバッジが控えめな表示（デフォルトのSlate色）になっていることを確認してください。
+### Vercel Project設定（手動で要設定）
+- **Root Directory**: `lp` に設定することを強く推奨
+- **Framework Preset**: Other
+- **Build Command**: (空)
+- **Output Directory**: `.`
